@@ -1,0 +1,70 @@
+.custom-sidebar {
+  width: 220px;
+  background: linear-gradient(180deg, #222 85%, #1976d2 100%);
+  color: #fff;
+  min-height: 100vh;
+  padding-top: 1.5rem;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  left: 0;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  margin-left: 1.3rem;
+  margin-bottom: 2.2rem;
+}
+
+.lims-logo {
+  font-size: 1.3rem;
+  margin-right: 0.4rem;
+}
+
+.lims-sidebar-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sidebar-section {
+  margin: 1.4rem 0 0.35rem 1.5rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #90caf9;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sidebar-link {
+  color: #e3e3e3;
+  text-decoration: none;
+  padding: 0.65rem 1.4rem;
+  border-radius: 22px 0 0 22px;
+  margin-left: 0.5rem;
+  font-size: 1rem;
+  transition: background 0.16s, color 0.16s;
+  display: block;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.sidebar-link.active,
+.sidebar-link:active {
+  background: #1565c0;
+  color: #fff;
+}
+
+.sidebar-link:hover {
+  background: #1976d2;
+  color: #fff;
+}

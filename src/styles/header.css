@@ -1,0 +1,59 @@
+.custom-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, #1976d2 70%, #2196f3 100%);
+  color: #fff;
+  padding: 0.7rem 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+}
+
+.lims-logo {
+  font-size: 1.6rem;
+  margin-right: 0.6rem;
+}
+
+.lims-title {
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+}
+
+.header-user {
+  font-size: 1rem;
+}
+
+.header-logout-btn {
+  background: #fff;
+  color: #1976d2;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  padding: 0.35rem 1.05rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-left: 0.5rem;
+  box-shadow: 0 1px 4px rgba(25, 118, 210, 0.10);
+  transition: background 0.2s, color 0.2s;
+}
+
+.header-logout-btn:hover {
+  background: #1976d2;
+  color: #fff;
+  border: 1px solid #fff;
+}

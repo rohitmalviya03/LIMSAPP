@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -20,31 +20,25 @@ import PatientList from './components/Patients/PatientList';
 import AddPatient from './components/Patients/AddPatient';
 import EditPatient from './components/Patients/EditPatient';
 import PatientDetails from './components/Patients/PatientDetails';
-import AppRoutes from "./routes";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+
+import TestRaisedList from './components/TestRaised/TestRaisedList';
+import AddTestRaised from './components/TestRaised/AddTestRaised';
+
+import TestRaisedDetails from './components/TestRaised/TestRaisedDetails';
+
 import './styles/main.css';
 
-function App() {
-  // ✅ Initialize user from localStorage
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+function AppContent() {
+  const { user, setUser } = useAuth();
 
-  // ✅ Handle logout
-  const handleLogout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
-    
-  };
-
-  return ( <AuthProvider>
-    <Router>
-      {user && <Navbar user={user} setUser={setUser} handleLogout={handleLogout} />}
+  return (
+    <>
+      {user && <Navbar />}
       <div className={user ? 'app-layout' : ''}>
         {user ? (
           <div className="layout-flex">
-            <Sidebar user={user} />
+            <Sidebar />
             <div className="main-content">
               <Routes>
                 {/* Default route */}
@@ -61,7 +55,9 @@ function App() {
                 <Route path="/patients/add" element={<AddPatient />} />
                 <Route path="/patients/edit/:id" element={<EditPatient />} />
                 <Route path="/patients/:id" element={<PatientDetails />} />
-
+<Route path="/tests" element={<TestRaisedList />} />
+<Route path="/tests/add" element={<AddTestRaised />} />
+<Route path="/tests/:id" element={<TestRaisedDetails />} />
                 <Route
                   path="/admin"
                   element={
@@ -84,10 +80,7 @@ function App() {
               {/* Show login if not authenticated */}
               <Route
                 path="/"
-                element={<Login setUser={(userData) => {
-                  setUser(userData);
-                  localStorage.setItem('user', JSON.stringify(userData));
-                }} />}
+                element={<Login setUser={setUser} />}
               />
               {/* Redirect all other routes to login */}
               <Route path="*" element={<Navigate to="/" replace />} />
@@ -95,7 +88,16 @@ function App() {
           </div>
         )}
       </div>
-    </Router>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
     </AuthProvider>
   );
 }
