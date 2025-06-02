@@ -16,11 +16,13 @@ const Login = ({ setUser }) => {
     try {
       const res = await axios.post('http://localhost:8181/api/auth/login', { username, password }, { withCredentials: true });
       setUser(res.data); // Save user info, including role
-      
+      localStorage.setItem("user", JSON.stringify(res.data));
+     
       // Role-based redirect
       if (res.data.role === 'admin') {
         navigate('/admin', { replace: true });
       } else {
+      
         // If location.state?.from exists, go there, else dashboard
         const redirectPath = location.state?.from?.pathname || '/dashboard';
         navigate(redirectPath, { replace: true });

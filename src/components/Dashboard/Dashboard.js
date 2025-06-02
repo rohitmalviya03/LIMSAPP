@@ -3,7 +3,7 @@ import api from "../../api/api";
 import Sidebar from "../Layout/Sidebar";
 import { Link } from "react-router-dom";
 
-const Dashboard = () => {
+const Dashboard = ({ user }) => {
   const [stats, setStats] = useState({
     samples: 0,
     users: 0,
@@ -26,10 +26,7 @@ const Dashboard = () => {
   }, []);
 
   return (
-
-
     <div>
-
       <h1 style={{ marginBottom: 6 }}>Welcome to LIMS Dashboard</h1>
       <p style={{ color: "#444", marginBottom: 28 }}>
         Manage your laboratory and patient information with ease.
