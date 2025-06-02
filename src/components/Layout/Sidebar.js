@@ -32,9 +32,6 @@ const Sidebar = () => (
         Add Sample
       </NavLink>
       <div className="sidebar-section">Patients</div>
-   
-      
-      
       <NavLink
         to="/patients/add"
         className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}
@@ -42,7 +39,7 @@ const Sidebar = () => (
       >
         Register Patient
       </NavLink>
-         <NavLink
+      <NavLink
         to="/patients"
         className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}
         end
@@ -64,6 +61,15 @@ const Sidebar = () => (
         end
       >
         Test Raised
+      </NavLink>
+      {/* Billing Section */}
+      <div className="sidebar-section">Billing</div>
+      <NavLink
+        to="/billing"
+        className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}
+        end
+      >
+        Billing
       </NavLink>
     </nav>
   </aside>

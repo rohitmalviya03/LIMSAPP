@@ -1,0 +1,74 @@
+.lims-billing-container {
+    background: #fff;
+    margin: 0 auto;
+    padding: 30px 18px 100px 18px;
+    max-width: 800px;
+    border-radius: 12px;
+    box-shadow: 0 2px 30px #d6e0f6;
+  }
+  
+  .lims-title {
+    font-size: 1.5em;
+    color: #1953a8;
+    margin-bottom: 18px;
+    font-weight: 800;
+  }
+  
+  .lims-card {
+    background: #fafdff;
+    border-radius: 8px;
+    box-shadow: 0 1px 6px #e2eaf7;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+  }
+  
+  .lims-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1em;
+  }
+  .lims-table th, .lims-table td {
+    border: 1px solid #e5e7eb;
+    padding: 7px 12px;
+    text-align: left;
+  }
+  .lims-table th {
+    background: #f6fafd;
+    color: #1953a8;
+    font-weight: 600;
+  }
+  .lims-table tr:nth-child(even) {
+    background: #fafbfc;
+  }
+  .lims-table tr:hover {
+    background: #e6f0ff;
+  }
+  
+  .lims-bill-summary {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 1.08em;
+  }
+  
+  .lims-bill-preview {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 6px #e2eaf7;
+    padding: 20px 18px 28px 18px;
+    margin: 0 auto;
+    max-width: 500px;
+    border: 2px dashed #b6d4fa;
+  }
+  
+  .lims-bill-header {
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+  }
+  @media print {
+    body * { visibility: hidden; }
+    #printableBill, #printableBill * { visibility: visible; }
+    #printableBill { position: absolute; left: 0; top: 0; width: 100vw; }
+  }

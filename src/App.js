@@ -24,7 +24,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 
 import TestRaisedList from './components/TestRaised/TestRaisedList';
 import AddTestRaised from './components/TestRaised/AddTestRaised';
-
+import BillingModule from './components/Billing/BillingModule';
 import TestRaisedDetails from './components/TestRaised/TestRaisedDetails';
 
 import './styles/main.css';
@@ -50,7 +50,7 @@ function AppContent() {
                 <Route path="/samples" element={<SampleList />} />
                 <Route path="/samples/add" element={<AddSample />} />
                 <Route path="/samples/:id" element={<SampleDetails />} />
-
+                <Route path="/billing" element={<BillingModule />} /> 
                 <Route path="/patients" element={<PatientList />} />
                 <Route path="/patients/add" element={<AddPatient />} />
                 <Route path="/patients/edit/:id" element={<EditPatient />} />

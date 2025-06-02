@@ -1,29 +1,55 @@
-import React, {useState  ,useEffect } from "react";
-import axios from "axios";
-import '../../styles/tests.css';
+import React, { useState, useEffect } from "react";
 import api from "../../api/api";
+import RaisedTestsList from "./RaisedTestsList";
+import "../../styles/tests.css";
+
 const AddTestRaised = () => {
   const [search, setSearch] = useState(""); // MRN or name input
   const [patient, setPatient] = useState(null); // Patient details after search
   const [searchError, setSearchError] = useState("");
-  const [testOptions, setTestOptions] = useState([]); // <-- Master test list
-  const [form, setForm] = useState({
-    testName: "",
-    notes: "",
-  });
+  const [testOptions, setTestOptions] = useState([]); // Master test list
+  const [autocomplete, setAutocomplete] = useState([]); // Suggestions for test search
+  const [showAutocomplete, setShowAutocomplete] = useState(false);
+  const [selectedTests, setSelectedTests] = useState([]); // [testName, ...]
+  const [testSearch, setTestSearch] = useState(""); // Test search input
+
+  const [notes, setNotes] = useState(""); // single notes for all tests
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState("");
-  const [sampleNumber, setSampleNumber] = useState("");
+  const [sampleNumbers, setSampleNumbers] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-const currentUser = localStorage.getItem("user") || "rohitmalviya03";
-const obj = JSON.parse(currentUser);
-console.log(obj.id);  // Outputs: 9
-    // Fetch test master data once on mount
+  // Get logged-in user object from localStorage (assume it's stored as JSON string)
+  const userStr = localStorage.getItem("user") || '{"id":"rohitmalviya03"}';
+  let obj = {};
+  try {
+    obj = JSON.parse(userStr);
+  } catch (err) {
+    obj = { id: "rohitmalviya03" };
+  }
+
+  // Fetch test master data once on mount
   useEffect(() => {
     api.get("/tests-master")
       .then(res => setTestOptions(res.data))
       .catch(() => setTestOptions([]));
   }, []);
+
+  // Autocomplete filtering for test search
+  useEffect(() => {
+    if (!testSearch.trim()) {
+      setAutocomplete([]);
+      setShowAutocomplete(false);
+    } else {
+      const filtered = testOptions.filter(
+        t =>
+          t.testName.toLowerCase().includes(testSearch.toLowerCase()) &&
+          !selectedTests.includes(t.testName)
+      );
+      setAutocomplete(filtered);
+      setShowAutocomplete(filtered.length > 0);
+    }
+  }, [testSearch, testOptions, selectedTests]);
 
   // Handler: search by MRN or name
   const handleSearch = async (e) => {
@@ -32,7 +58,7 @@ console.log(obj.id);  // Outputs: 9
     setPatient(null);
     setSubmitError("");
     setSubmitSuccess("");
-    setSampleNumber("");
+    setSampleNumbers([]);
     if (!search.trim()) {
       setSearchError("Please enter MRN or patient name.");
       return;
@@ -42,7 +68,6 @@ console.log(obj.id);  // Outputs: 9
       if (/^\d+$/.test(search.trim())) {
         // All digits: treat as MRN
         res = await api.get(`/patients/search?mrn=${search.trim()}`);
-        console.log(res.data);
         setPatient(res.data);
       } else {
         // Otherwise, search by name (picks first result)
@@ -58,46 +83,80 @@ console.log(obj.id);  // Outputs: 9
     }
   };
 
-  // Handler: field change
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  // Handler: change in test search input
+  const handleTestSearchChange = (e) => {
+    setTestSearch(e.target.value);
+    setShowAutocomplete(true);
     setSubmitError("");
     setSubmitSuccess("");
-    setSampleNumber("");
+    setSampleNumbers([]);
   };
 
-  // Handler: submit test for patient
+  // Handler: select test from autocomplete
+  const handleSelectTest = (testName) => {
+    setSelectedTests([
+      ...selectedTests,
+      testName
+    ]);
+    setTestSearch("");
+    setAutocomplete([]);
+    setShowAutocomplete(false);
+    setSubmitError("");
+    setSubmitSuccess("");
+    setSampleNumbers([]);
+  };
+
+  // Handler: remove a selected test
+  const handleRemoveTest = (idx) => {
+    setSelectedTests(selectedTests.filter((_, i) => i !== idx));
+    setSubmitError("");
+    setSubmitSuccess("");
+    setSampleNumbers([]);
+  };
+
+  // Handler: notes change (single textarea)
+  const handleNotesChange = (e) => {
+    setNotes(e.target.value);
+    setSubmitError("");
+    setSubmitSuccess("");
+    setSampleNumbers([]);
+  };
+
+  // Handler: submit all selected tests
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitError("");
     setSubmitSuccess("");
-    setSampleNumber("");
+    setSampleNumbers([]);
     if (!patient) {
       setSubmitError("Please select a patient first.");
       return;
     }
-    if (!form.testName.trim()) {
-      setSubmitError("Test name is required.");
+    if (selectedTests.length === 0) {
+      setSubmitError("Please add at least one test.");
       return;
     }
+    setLoading(true);
     try {
-      const res = await api.post("/addtests", {
+      const res = await api.post("/addtests/bulk", {
         patientId: patient.id,
-        testName: form.testName,
-        notes: form.notes,
-        testRaisedBy: obj.id, // Pass the user ID from localStorage
+        testRaisedBy: obj.id,
+        tests: selectedTests.map(testName => ({ testName })), // [{testName}]
+        notes // send notes for all
       });
-      setSubmitSuccess("Test raised successfully!");
-      setSampleNumber(res.data.sampleNumber);
-      setForm({ testName: "", notes: "" });
-    } catch (err) {
-      setSubmitError("Failed to raise test. Please try again.");
+      setSubmitSuccess("All tests raised successfully!");
+      setSampleNumbers(res.data.sampleNumbers || []);
+      setSelectedTests([]);
+      setNotes("");
+    } catch {
+      setSubmitError("Failed to raise tests. Please try again.");
     }
+    setLoading(false);
   };
 
   return (
     <div className="lims-container">
-      <h2 className="lims-title">🧪 Raise a New Lab Test</h2>
+      <h2 className="lims-title">🧪 Raise New Lab Test(s)</h2>
 
       {/* Patient Search */}
       <form onSubmit={handleSearch} style={{ marginBottom: 20 }}>
@@ -110,70 +169,119 @@ console.log(obj.id);  // Outputs: 9
             placeholder="e.g. 12345 or John"
             style={{ maxWidth: 350 }}
           />
-          <button type="submit" className="btn" style={{ marginLeft: 10 }}>Find Patient</button>
+          <button type="submit" className="btn" style={{ marginLeft: 10 }}>
+            Find Patient
+          </button>
         </div>
-        {searchError && <div style={{ color: 'red', marginTop: 5 }}>{searchError}</div>}
+        {searchError && <div style={{ color: "red", marginTop: 5 }}>{searchError}</div>}
       </form>
 
       {/* Patient Details */}
       {patient && (
         <div className="lims-card" style={{ marginBottom: 20 }}>
-          <div><b>Patient Name:</b>  {patient.firstName}  {patient.lastName}</div>
-          
-          <div><b>MRN:</b> {patient.mrn}</div>
-           <div><b>Registration Date :</b>  {patient.registrationDate} </div>
+          <div>
+            <b>Patient Name:</b> {patient.firstName} {patient.lastName}
+          </div>
+          <div>
+            <b>MRN:</b> {patient.mrn}
+          </div>
+          <div>
+            <b>Registration Date :</b> {patient.registrationDate}
+          </div>
         </div>
       )}
 
       {/* Raise Test Form */}
       {patient && (
-     <form className="lims-form" onSubmit={handleSubmit}>
-          <div className="lims-form-group">
-            <label htmlFor="testName">Select Test</label>
-            <select
+        <form className="lims-form" onSubmit={handleSubmit} autoComplete="off">
+          <div className="lims-form-group" style={{ position: "relative" }}>
+            <label htmlFor="testName">Add Test</label>
+            <input
               id="testName"
               name="testName"
-              value={form.testName}
-              onChange={handleChange}
-              required
-              className="lims-select"
-            >
-              <option value="">-- Select Test --</option>
-              {testOptions.map((test) => (
-                <option key={test.id} value={test.testName}>
-                  {test.testName}
-                </option>
-              ))}
-            </select>
+              value={testSearch}
+              onChange={handleTestSearchChange}
+              placeholder="Type to search test name..."
+              className="lims-input"
+              autoComplete="off"
+              onFocus={() => setShowAutocomplete(autocomplete.length > 0)}
+              onBlur={() => setTimeout(() => setShowAutocomplete(false), 200)}
+            />
+            {showAutocomplete && (
+              <ul className="autocomplete-list">
+                {autocomplete.map(test => (
+                  <li
+                    key={test.id}
+                    onClick={() => handleSelectTest(test.testName)}
+                  >
+                    {test.testName}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-          <div className="lims-form-group">
- 
-  <input type="hidden" value={obj.id} readOnly className="lims-input" />
-</div>
+
+          {/* Selected Tests Pills */}
+          {selectedTests.length > 0 && (
+            <div className="lims-selected-tests" style={{ margin: "8px 0 18px 0" }}>
+              <label style={{ display: "block", marginBottom: 5, fontWeight: 600 }}>Tests to Raise:</label>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                {selectedTests.map((testName, idx) => (
+                  <span
+                    key={idx}
+                    className="lims-pill"
+                  >
+                    {testName}
+                    <button
+                      type="button"
+                      className="lims-pill-remove"
+                      onClick={() => handleRemoveTest(idx)}
+                      title="Remove"
+                    >✖</button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Notes section (single textarea for all tests) */}
           <div className="lims-form-group">
             <label htmlFor="notes">Notes</label>
             <textarea
               id="notes"
               name="notes"
-              value={form.notes}
-              onChange={handleChange}
+              value={notes}
+              onChange={handleNotesChange}
               rows={3}
-              placeholder="Any instructions..."
+              placeholder="Any instructions (will apply to all tests)..."
             />
           </div>
-          <button type="submit" className="btn btn-primary">✅ Raise Test</button>
-          {submitError && <div style={{ color: 'red', marginTop: 10 }}>{submitError}</div>}
+
+          <input type="hidden" value={obj.id} readOnly className="lims-input" />
+
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? <span className="mini-spinner"></span> : "✅ Raise All Tests"}
+          </button>
+          {submitError && (
+            <div style={{ color: "red", marginTop: 10 }}>{submitError}</div>
+          )}
           {submitSuccess && (
-            <div style={{ color: 'green', marginTop: 10 }}>
+            <div style={{ color: "green", marginTop: 10 }}>
               {submitSuccess}
-              {sampleNumber && <div><b>Sample Number:</b> {sampleNumber}</div>}
+              {sampleNumbers.length > 0 && (
+                <div>
+                  <b>Sample Numbers:</b> {sampleNumbers.join(", ")}
+                </div>
+              )}
             </div>
           )}
         </form>
       )}
+
+      {/* Raised tests table with edit */}
+      <RaisedTestsList patientId={patient && patient.id} />
     </div>
   );
 };
 
 export default AddTestRaised;
-
