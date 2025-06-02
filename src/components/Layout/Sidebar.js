@@ -32,19 +32,22 @@ const Sidebar = () => (
         Add Sample
       </NavLink>
       <div className="sidebar-section">Patients</div>
-      <NavLink
-        to="/patients"
-        className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}
-        end
-      >
-        All Patients
-      </NavLink>
+   
+      
+      
       <NavLink
         to="/patients/add"
         className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}
         end
       >
-        Add Patient
+        Register Patient
+      </NavLink>
+         <NavLink
+        to="/patients"
+        className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}
+        end
+      >
+        View All Patients
       </NavLink>
       <div className="sidebar-section">Admin</div>
       <NavLink
