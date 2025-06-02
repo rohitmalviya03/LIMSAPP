@@ -1,0 +1,411 @@
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f9f9f9;
+  margin: 0;
+}
+
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 220px;
+  background: #2c3e50;
+  color: #fff;
+  padding: 20px 0;
+  min-height: 100vh;
+}
+
+.sidebar h2 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.sidebar a {
+  display: block;
+  color: #fff;
+  text-decoration: none;
+  padding: 12px 30px;
+  margin-bottom: 5px;
+  transition: background 0.2s;
+}
+
+.sidebar a.active,
+.sidebar a:hover {
+  background: #34495e;
+}
+
+.main-content {
+  flex: 1;
+  padding: 30px;
+}
+
+.header {
+  background: #fff;
+  padding: 20px 30px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table-custom {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  margin-top: 20px;
+}
+
+.table-custom th,
+.table-custom td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.table-custom th {
+  background: #f1f1f1;
+}
+
+.btn {
+  padding: 8px 18px;
+  background: #2980b9;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn:hover {
+  background: #1c5980;
+}
+
+/* Add below to your existing main.css or adjust as needed */
+
+.dashboard-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 32px;
+  margin-bottom: 32px;
+}
+
+.card {
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
+  border-radius: 10px;
+  flex: 1 1 220px;
+  min-width: 180px;
+  max-width: 260px;
+  padding: 28px 24px;
+  text-align: center;
+  transition: transform 0.13s;
+}
+
+.card:hover {
+  transform: translateY(-4px) scale(1.025);
+  box-shadow: 0 4px 14px rgba(44, 62, 80, 0.18);
+}
+
+.card-title {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 12px;
+  letter-spacing: 0.05em;
+}
+
+.card-value {
+  font-size: 2.3rem;
+  font-weight: bold;
+  color: #2980b9;
+  margin-bottom: 6px;
+}
+
+.quick-links {
+  margin-top: 12px;
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.quick-link {
+  color: #fff;
+  background: #2980b9;
+  border-radius: 6px;
+  padding: 12px 30px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.16s;
+}
+
+.quick-link:hover {
+  background: #1c5980;
+}
+
+@media (max-width: 700px) {
+  .dashboard-cards {
+    flex-direction: column;
+    gap: 18px;
+  }
+}
+
+/* --- PATIENT MODULE STYLES --- */
+
+.patient-form-container {
+  max-width: 600px;
+  margin: 28px auto;
+  background: #fff;
+  padding: 32px 28px 24px 28px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
+}
+
+.patient-form-container h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: #2980b9;
+  text-align: center;
+}
+
+.patient-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.patient-form label {
+  font-weight: 500;
+  color: #34495e;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.patient-form input,
+.patient-form select {
+  width: 100%;
+  padding: 8px 10px;
+  margin-top: 2px;
+  border-radius: 5px;
+  border: 1px solid #e0e0e0;
+  font-size: 1rem;
+  transition: border 0.17s;
+  background: #fafbfc;
+}
+
+.patient-form input:focus,
+.patient-form select:focus {
+  border: 1.5px solid #2980b9;
+  outline: none;
+  background: #fff;
+}
+
+.patient-form .btn {
+  margin-top: 18px;
+  width: 100%;
+  padding: 10px;
+}
+
+.patient-error {
+  color: #c0392b;
+  background: #fdecea;
+  border-left: 4px solid #c0392b;
+  padding: 10px 18px;
+  border-radius: 5px;
+  margin-bottom: 16px;
+}
+
+.patient-table-wrapper {
+  background: #fff;
+  padding: 28px;
+  border-radius: 12px;
+  margin: 28px auto;
+  max-width: 1100px;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
+}
+
+.patient-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 18px;
+}
+
+.patient-table th,
+.patient-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.patient-table th {
+  background: #f1f1f1;
+  color: #2980b9;
+  font-weight: 600;
+}
+
+.patient-table tr:hover {
+  background: #f6faff;
+}
+
+.patient-list-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.patient-list-actions input[type="text"] {
+  padding: 7px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.patient-details-container {
+  background: #fff;
+  padding: 32px 28px 24px 28px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
+  max-width: 600px;
+  margin: 32px auto;
+}
+
+.patient-details-container h2 {
+  color: #2980b9;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.patient-details-list p {
+  margin: 0 0 14px 0;
+  font-size: 1.08rem;
+  color: #333;
+}
+
+.patient-details-list strong {
+  color: #2980b9;
+}
+
+@media (max-width: 700px) {
+  .patient-form-container,
+  .patient-details-container,
+  .patient-table-wrapper {
+    padding: 18px 8px;
+  }
+  .patient-table th, .patient-table td {
+    padding: 8px 4px;
+  }
+}
+/* Add to your main.css or patient.css for 2-column form layout */
+.patient-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 28px;
+}
+
+@media (max-width: 700px) {
+  .patient-form-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}
+.patient-form-grid > div {
+  display: flex;
+  flex-direction: column;
+}
+
+
+
+.patient-form-container {
+  max-width: 600px;
+  margin: 28px auto;
+  background: #fff;
+  padding: 32px 28px 24px 28px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
+}
+
+.patient-form-container h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: #2980b9;
+  text-align: center;
+}
+
+.patient-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.patient-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 28px;
+}
+
+@media (max-width: 700px) {
+  .patient-form-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}
+
+.patient-form-grid > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.patient-form label {
+  font-weight: 500;
+  color: #34495e;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.patient-form input,
+.patient-form select {
+  width: 100%;
+  padding: 8px 10px;
+  margin-top: 2px;
+  border-radius: 5px;
+  border: 1px solid #e0e0e0;
+  font-size: 1rem;
+  transition: border 0.17s;
+  background: #fafbfc;
+}
+
+.patient-form input:focus,
+.patient-form select:focus {
+  border: 1.5px solid #2980b9;
+  outline: none;
+  background: #fff;
+}
+
+.patient-error {
+  color: #c0392b;
+  background: #fdecea;
+  border-left: 4px solid #c0392b;
+  padding: 10px 18px;
+  border-radius: 5px;
+  margin-bottom: 16px;
+}
+
+.btn {
+  margin-top: 22px;
+  width: 180px;
+  align-self: center;
+  padding: 10px;
+  background: #2980b9;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn:hover {
+  background: #21618c;
+}

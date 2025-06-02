@@ -1,24 +1,45 @@
-import logo from './logo.svg';
-import './App.css';
-
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './components/Auth/Login';
+import Dashboard from './components/Dashboard/Dashboard';
+import AdminPanel from './components/Admin/AdminPanel';
+import "./styles/main.css";
 function App() {
+  // This holds the logged-in user's info, including role
+  // Example: { username: 'admin', role: 'admin' }
+  const [user, setUser] = useState(null);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+
+
+      <Routes>
+        
+        {/* Login page: always shown at '/' */}
+        <Route path="/" element={<Login setUser={setUser} />} />
+
+        {/* Dashboard: only accessible if logged in */}
+        <Route
+          path="/dashboard"
+          element={
+            user ? <Dashboard user={user} /> : <Navigate to="/" replace />
+          }
+        />
+
+        {/* Admin Panel: only accessible if logged in AND is admin */}
+        <Route
+          path="/admin"
+          element={
+            user && user.role === 'admin'
+              ? <AdminPanel user={user} />
+              : <Navigate to="/" replace />
+          }
+        />
+
+        {/* Redirect any unknown route to login */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
 
