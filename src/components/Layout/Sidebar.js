@@ -17,20 +17,30 @@ const Sidebar = () => (
         Dashboard
       </NavLink>
       <div className="sidebar-section">Samples</div>
-      <NavLink
-        to="/samples"
-        className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}
-        end
-      >
-         Samples Collection
-      </NavLink>
+
+
       <NavLink
         to="/sample-collection"
         className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}
         end
       >
-        Add Sample
+        Samples Collection
       </NavLink>
+      <NavLink
+        to="/samples"
+        className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}
+        end
+      >
+        View  Samples 
+      </NavLink>
+      <NavLink
+        to="/samples/collected"
+        className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}
+        end
+      >
+        Collected Samples
+      </NavLink>
+      
       <div className="sidebar-section">Patients</div>
       <NavLink
         to="/patients/add"

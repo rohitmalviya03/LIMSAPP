@@ -56,3 +56,199 @@
   background: #0d47a1;
   color: #fff;
 }
+.dashboard-main-bg {
+  background: #fff;
+  min-height: 100vh;
+  display: flex;
+}
+
+.dashboard-container-modern {
+  flex: 1;
+  padding: 0 0 0 0;
+  margin: 0;
+  max-width: 100vw;
+  min-height: 100vh;
+  box-sizing: border-box;
+  background: transparent;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  padding-left: 32px;
+  padding-right: 32px;
+}
+
+.dashboard-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1976d2;
+  margin-bottom: 6px;
+}
+
+.dashboard-desc {
+  color: #4b5c6b;
+  font-size: 1.1rem;
+  margin-bottom: 0;
+}
+
+.dashboard-avatar {
+  width: 54px;
+  height: 54px;
+  background: #1976d2;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  box-shadow: 0 2px 12px #1976d220;
+}
+
+.dashboard-cards-modern {
+  display: flex;
+  gap: 28px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+}
+
+.card-modern {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 16px #1976d220;
+  padding: 28px 32px;
+  min-width: 180px;
+  flex: 1 1 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: box-shadow 0.2s;
+  position: relative;
+}
+
+.card-modern:hover {
+  box-shadow: 0 6px 24px #1976d240;
+}
+
+.card-modern-icon {
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+}
+
+.card-modern-title {
+  font-size: 1.08rem;
+  color: #1976d2;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.card-modern-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #222;
+}
+
+.dashboard-test-breakdown-modern {
+  margin: 36px 0 24px 0;
+}
+
+.breakdown-title {
+  color: #1953a8;
+  font-size: 1.18rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.breakdown-pills-modern {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.breakdown-pill-modern {
+  background: #fafdff;
+  border-radius: 18px;
+  padding: 12px 28px;
+  font-size: 1.08rem;
+  font-weight: 600;
+  color: #1976d2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 2px 8px #1976d210;
+  min-width: 120px;
+  justify-content: space-between;
+}
+
+.breakdown-pill-modern.pending {
+  background: #fffbe7;
+  color: #bfa100;
+}
+.breakdown-pill-modern.running {
+  background: #e3f0fc;
+  color: #1976d2;
+}
+.breakdown-pill-modern.completed {
+  background: #e7fbe7;
+  color: #2e7d32;
+}
+.breakdown-pill-modern.all {
+  background: #e7f3fb;
+  color: #1565c0;
+}
+
+.quick-title-modern {
+  margin-top: 32px;
+  color: #1976d2;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.quick-links-modern {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.quick-link-modern {
+  background: #fff;
+  color: #1976d2;
+  border-radius: 8px;
+  padding: 12px 22px;
+  font-weight: 600;
+  font-size: 1.08rem;
+  text-decoration: none;
+  box-shadow: 0 2px 8px #1976d210;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quick-link-modern:hover {
+  background: #1976d2;
+  color: #fff;
+  box-shadow: 0 4px 16px #1976d230;
+}
+
+.fade-in {
+  animation: fadeIn 0.7s;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px);}
+  to { opacity: 1; transform: none;}
+}
+/* Add to d:\Projects\LIMS\frontend\LIMSAPP\src\styles\dashboard.css */
+.breakdown-pill-modern.collected {
+  background: #e7fbe7;
+  color: #1976d2;
+}
+.breakdown-pill-modern.processing {
+  background: #e3f0fc;
+  color: #1976d2;
+}
