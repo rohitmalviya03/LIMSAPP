@@ -26,7 +26,7 @@ import TestRaisedList from './components/TestRaised/TestRaisedList';
 import AddTestRaised from './components/TestRaised/AddTestRaised';
 import BillingModule from './components/Billing/BillingModule';
 import TestRaisedDetails from './components/TestRaised/TestRaisedDetails';
-
+import SampleCollectionList from './components/SampleCollection/SampleCollectionList';
 import './styles/main.css';
 
 function AppContent() {
@@ -55,6 +55,7 @@ function AppContent() {
                 <Route path="/patients/add" element={<AddPatient />} />
                 <Route path="/patients/edit/:id" element={<EditPatient />} />
                 <Route path="/patients/:id" element={<PatientDetails />} />
+                  <Route path="/sample-collection" element={<SampleCollectionList />} />
 <Route path="/tests" element={<TestRaisedList />} />
 <Route path="/tests/add" element={<AddTestRaised />} />
 <Route path="/tests/:id" element={<TestRaisedDetails />} />

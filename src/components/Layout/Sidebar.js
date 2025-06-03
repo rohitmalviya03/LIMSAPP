@@ -22,10 +22,10 @@ const Sidebar = () => (
         className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}
         end
       >
-        All Samples
+         Samples Collection
       </NavLink>
       <NavLink
-        to="/samples/add"
+        to="/sample-collection"
         className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}
         end
       >

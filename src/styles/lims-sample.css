@@ -1,0 +1,21 @@
+.lims-modal-overlay {
+  position: fixed;
+  left: 0; top: 0; width: 100vw; height: 100vh;
+  background: rgba(40,50,100,0.13);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2000;
+}
+.lims-modal-content {
+  animation: limsModalIn 0.18s;
+}
+@keyframes limsModalIn {
+  from { transform: translateY(70px) scale(0.95); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+.lims-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #1976d230;
+  padding: 28px;
+  margin-bottom: 20px;
+}
