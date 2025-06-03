@@ -13,21 +13,35 @@ const Navbar = () => {
   };
 
   return (
-    <header className="custom-header">
-      <div className="header-brand">
-        <span className="lims-logo">🧪</span>
-        <span className="lims-title">LIMS Application</span>
+    <header className="modern-navbar themed-navbar">
+      <div className="navbar-left" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
+        <span className="lims-logo" role="img" aria-label="Lab" style={{ fontSize: 32, marginRight: 10 }}>
+          🧪
+        </span>
+        <span className="lims-titles" style={{ fontWeight: 700, fontSize: 21, letterSpacing: "1px" }}>
+          LIMS Application
+        </span>
       </div>
-      <div className="header-right">
+      <nav className="navbar-links">
+        <a href="/dashboard" className="navbar-link">Dashboard</a>
+        <a href="/patients" className="navbar-link">Patients</a>
+        <a href="/billing" className="navbar-link">Billing</a>
+        <a href="/tests" className="navbar-link">Tests</a>
+      </nav>
+      <div className="navbar-right">
         {user ? (
           <>
-            <span className="header-user">Hello, <b>{user.username}</b></span>
-            <button className="header-logout-btn" onClick={handleLogout}>
+            <span className="navbar-user">
+              <span className="user-icon" role="img" aria-label="user">👤</span>
+              <b style={{ marginLeft: 6 }}>{user.username}</b>
+            </span>
+            <button className="navbar-logout-btn" onClick={handleLogout}>
+              <span role="img" aria-label="logout" style={{ marginRight: 5 }}>🚪</span>
               Logout
             </button>
           </>
         ) : (
-          <span className="header-user">Hello, Guest</span>
+          <span className="navbar-user">Hello, Guest</span>
         )}
       </div>
     </header>
