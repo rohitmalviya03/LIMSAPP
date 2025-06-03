@@ -1,0 +1,114 @@
+.patient-form-modern-bg {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fafdff 0%, #e3f0fc 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.patient-form-modern-card {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px #1976d220;
+  padding: 44px 32px 32px 32px;
+  max-width: 420px;
+  width: 100%;
+  margin: 32px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.patient-form-title {
+  text-align: center;
+  color: #1565c0;
+  font-weight: 800;
+  font-size: 2rem;
+  margin-bottom: 28px;
+  letter-spacing: 1px;
+}
+
+.patient-error-modern {
+  background: #ffeaea;
+  color: #d32f2f;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 18px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.patient-form-modern {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.patient-form-modern-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.patient-form-modern-row label {
+  font-weight: 600;
+  color: #1976d2;
+  margin-bottom: 2px;
+  font-size: 1rem;
+}
+
+.patient-form-modern-row input,
+.patient-form-modern-row select,
+.patient-form-modern-row textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1.5px solid #e3f0fc;
+  font-size: 1.08rem;
+  background: #fafdff;
+  transition: border 0.18s;
+  box-shadow: 0 1px 4px #1976d208;
+}
+
+.patient-form-modern-row input:focus,
+.patient-form-modern-row select:focus,
+.patient-form-modern-row textarea:focus {
+  border: 1.5px solid #1976d2;
+  outline: none;
+  background: #f0f7ff;
+}
+
+.btn-modern {
+  margin: 24px 0 0 0;
+  background: linear-gradient(90deg, #1976d2 60%, #42a5f5 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 12px #1976d220;
+  transition: background 0.18s;
+  width: 100%;
+}
+
+.btn-modern:hover {
+  background: linear-gradient(90deg, #1565c0 60%, #1976d2 100%);
+}
+
+@media (max-width: 600px) {
+  .patient-form-modern-card {
+    padding: 24px 8px 18px 8px;
+    max-width: 98vw;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.7s;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px);}
+  to { opacity: 1; transform: none;}
+}

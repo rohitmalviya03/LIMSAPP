@@ -793,3 +793,184 @@
 .autocomplete-list li:hover {
   background: #f0f6ff;
 }
+
+/* Add to d:\Projects\LIMS\frontend\LIMSAPP\src\styles\tests.css */
+.test-list-modern-bg {
+  min-height: 100vh;
+  background: linear-gradient(120deg, #e3f0fc 0%, #fafdff 100%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.test-list-modern-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 32px #1976d230;
+  padding: 38px 38px 28px 38px;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 16px;
+}
+
+.test-list-header-modern {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.test-list-title-modern {
+  color: #1976d2;
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+}
+
+.raise-btn-modern {
+  background: linear-gradient(90deg, #1976d2 60%, #42a5f5 100%);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 10px 26px;
+  font-size: 1.08rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 12px #1976d220;
+  transition: background 0.18s;
+  text-decoration: none;
+}
+
+.raise-btn-modern:hover {
+  background: linear-gradient(90deg, #1565c0 60%, #1976d2 100%);
+}
+
+.test-list-filter-modern {
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lims-select-modern {
+  padding: 7px 16px;
+  border-radius: 7px;
+  border: 1px solid #bcd;
+  font-size: 1rem;
+  background: #fafdff;
+  margin-left: 8px;
+}
+
+.lims-table-responsive {
+  overflow-x: auto;
+}
+
+.test-list-table-modern {
+  width: 100%;
+  border-spacing: 0;
+  font-size: 16px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fafdff;
+}
+
+.test-list-table-modern th, .test-list-table-modern td {
+  padding: 14px 10px;
+  text-align: left;
+}
+
+.test-list-table-modern th {
+  background: #e3f0fc;
+  color: #1976d2;
+  font-weight: 700;
+  border-bottom: 2px solid #dbeafe;
+}
+
+.test-list-table-modern tr {
+  transition: background 0.2s;
+}
+
+.test-list-table-modern tr:hover {
+  background: #f0f7ff;
+}
+
+.status-pill-modern {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: #e3f0fc;
+  color: #1976d2;
+  letter-spacing: 0.5px;
+}
+
+.status-pill-modern.pending {
+  background: #fffbe7;
+  color: #bfa100;
+}
+.status-pill-modern.completed {
+  background: #e7fbe7;
+  color: #2e7d32;
+}
+.status-pill-modern.cancelled {
+  background: #ffeaea;
+  color: #d32f2f;
+}
+
+.details-link-modern {
+  color: #1976d2;
+  font-weight: 600;
+  text-decoration: underline;
+  transition: color 0.18s;
+}
+
+.details-link-modern:hover {
+  color: #1565c0;
+}
+
+.lims-loader-modern {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 40px 0;
+  color: #1976d2;
+  font-size: 1.1rem;
+}
+
+.lds-dual-ring {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+}
+.lds-dual-ring:after {
+  content: " ";
+  display: block;
+  width: 32px;
+  height: 32px;
+  margin: 4px;
+  border-radius: 50%;
+  border: 4px solid #1976d2;
+  border-color: #1976d2 transparent #1976d2 transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+@keyframes lds-dual-ring {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
+}
+
+.no-tests-msg-modern {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 40px 0;
+  color: #888;
+  font-size: 1.1rem;
+}
+.no-tests-msg-modern img {
+  width: 90px;
+  opacity: 0.7;
+  margin-bottom: 12px;
+}
