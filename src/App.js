@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from 'react-router-dom';
 
 import Login from './components/Auth/Login';
@@ -32,18 +33,30 @@ import './styles/main.css';
 
 function AppContent() {
   const { user, setUser } = useAuth();
+  const location = useLocation();
+  const isAdminPanel = location.pathname.startsWith("/admin");
 
   return (
     <>
-      {user && <Navbar />}
+   {!isAdminPanel && <Sidebar />}
       <div className={user ? 'app-layout' : ''}>
         {user ? (
           <div className="layout-flex">
-            <Sidebar />
+            {/* Only show Sidebar if not on /admin */}
+            {!isAdminPanel && <Sidebar />}
             <div className="main-content">
               <Routes>
                 {/* Default route */}
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route
+                  path="/"
+                  element={
+                    user
+                      ? user.role === 'admin'
+                        ? <Navigate to="/admin" replace />
+                        : <Navigate to="/dashboard" replace />
+                      : <Navigate to="/" replace />
+                  }
+                />
 
                 {/* Protected routes */}
                 <Route path="/dashboard" element={<Dashboard user={user} />} />
@@ -56,11 +69,11 @@ function AppContent() {
                 <Route path="/patients/add" element={<AddPatient />} />
                 <Route path="/patients/edit/:id" element={<EditPatient />} />
                 <Route path="/patients/:id" element={<PatientDetails />} />
-                  <Route path="/sample-collection" element={<SampleCollectionList />} />
-<Route path="/samples/collected" element={<CollectedSamplesList />} />
-<Route path="/tests" element={<TestRaisedList />} />
-<Route path="/tests/add" element={<AddTestRaised />} />
-<Route path="/tests/:id" element={<TestRaisedDetails />} />
+                <Route path="/sample-collection" element={<SampleCollectionList />} />
+                <Route path="/samples/collected" element={<CollectedSamplesList />} />
+                <Route path="/tests" element={<TestRaisedList />} />
+                <Route path="/tests/add" element={<AddTestRaised />} />
+                <Route path="/tests/:id" element={<TestRaisedDetails />} />
                 <Route
                   path="/admin"
                   element={
@@ -73,7 +86,7 @@ function AppContent() {
                 />
 
                 {/* Fallback for unknown routes */}
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </div>
           </div>

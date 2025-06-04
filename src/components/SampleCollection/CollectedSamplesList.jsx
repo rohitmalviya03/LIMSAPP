@@ -45,7 +45,7 @@ export default function CollectedSamplesList() {
   // Handler for re-collect action
   const handleReCollect = async (sampleId) => {
     try {
-      await api.put(`/samples/${sampleId}/status`, { status: "Pending" }); // or "Re-Collect"
+       await api.put(`/samples/status`, { sampleId, status: "Pending" }); // or "Re-Collect"
       fetchSamples();
     } catch (err) {
       alert("Failed to set sample for re-collection.");

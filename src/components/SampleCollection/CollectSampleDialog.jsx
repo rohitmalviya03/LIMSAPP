@@ -4,7 +4,7 @@ import SampleCollectionSlip from "./SampleCollectionSlip";
 import api from "../../api/api";
 export default function CollectSampleDialog({ sample, onClose }) {
   const [collector, setCollector] = useState("");
-  const [collectedAt, setCollectedAt] = useState(new Date().toISOString().slice(0, 16));
+  const [collectedAt, setCollectedAt] = useState(new Date().toISOString());
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = async () => {
