@@ -29,6 +29,7 @@ import BillingModule from './components/Billing/BillingModule';
 import TestRaisedDetails from './components/TestRaised/TestRaisedDetails';
 import SampleCollectionList from './components/SampleCollection/SampleCollectionList';
 import CollectedSamplesList from "./components/SampleCollection/CollectedSamplesList";
+import ResultEntry from './components/ResultEntry/ResultEntry';
 import './styles/main.css';
 
 function AppContent() {
@@ -59,6 +60,19 @@ function AppContent() {
     );
   }
 
+  // // Result Entry role (or any role with access)
+  // if (user.role === 'resultentry' || user.role === 'lab' || user.role === 'admin') {
+  //   return (
+  //     <>
+  //       <Navbar />
+  //       <Routes>
+  //         <Route path="/result-entry" element={<ResultEntry />} />
+  //         <Route path="*" element={<Navigate to="/result-entry" replace />} />
+  //       </Routes>
+  //     </>
+  //   );
+  // }
+
   // Non-admin: show Navbar, Sidebar, and all other routes except admin
   return (
     <>
@@ -71,6 +85,7 @@ function AppContent() {
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<Dashboard user={user} />} />
               <Route path="/samples" element={<SampleList />} />
+               <Route path="/result-entry" element={<ResultEntry />} />
               <Route path="/samples/add" element={<AddSample />} />
               <Route path="/samples/:id" element={<SampleDetails />} />
               <Route path="/billing" element={<BillingModule />} />

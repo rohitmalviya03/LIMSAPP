@@ -1,42 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { FaTrashAlt, FaPlus, FaTimes } from "react-icons/fa";
 import api from "../../api/api";
+import TestGroupMaster from './TestGroupMaster';
 
 const TABS = [
   { key: "test", label: "Test Master" },
   { key: "sample", label: "Sample Master" },
   { key: "machine", label: "Machine Master" },
-  { key: "machineparam", label: "Machine Parameter Test Master" }
+  { key: "machineparam", label: "Machine Parameter Test Master" },
+  { key: "testgroup", label: "Test Group Master" }
 ];
 
 const cardStyle = {
-  background: "#f9fbfd",
+  background: "#fff",
   borderRadius: 12,
-  boxShadow: "0 2px 12px #e0e0e0",
-  padding: 24,
-  marginBottom: 28,
-  marginTop: 8
+  boxShadow: "0 2px 16px #1976d220",
+  padding: 16,
+  marginBottom: 18,
+  marginTop: 8,
+  width: "100%",
+  maxWidth: "100%",
+ // minHeight: "calc(100vh - 120px)", // fill most of the viewport height
+  boxSizing: "border-box"
 };
 
 const inputStyle = {
-  padding: "8px 12px",
+  padding: "6px 10px",
   borderRadius: 6,
-  border: "1.5px solid #b0b8c1",
-  fontSize: "1rem",
-  background: "#fff"
+  border: "1.2px solid #b0b8c1",
+  fontSize: "0.97rem",
+  background: "#fafdff"
 };
 
 const buttonStyle = {
-  padding: "8px 18px",
-  background: "#1976d2",
+  padding: "6px 14px",
+  background: "linear-gradient(90deg, #1976d2 60%, #42a5f5 100%)",
   color: "#fff",
   border: "none",
-  borderRadius: 6,
+  borderRadius: 7,
   fontWeight: 600,
   display: "flex",
   alignItems: "center",
   gap: 6,
-  cursor: "pointer"
+  cursor: "pointer",
+  fontSize: 15,
+  boxShadow: "0 1px 4px #1976d220"
 };
 
 const deleteBtnStyle = {
@@ -45,7 +53,7 @@ const deleteBtnStyle = {
   color: "#e74c3c",
   cursor: "pointer",
   fontSize: 18,
-  marginLeft: 10
+  marginLeft: 8
 };
 
 export default function AdminPanel({ user }) {
@@ -56,6 +64,7 @@ export default function AdminPanel({ user }) {
   const [machineParams, setMachineParams] = useState([]);
   const [newTest, setNewTest] = useState("");
   const [newTestPrice, setNewTestPrice] = useState("");
+  const [newTestSampleType, setNewTestSampleType] = useState("");
   const [newSample, setNewSample] = useState("");
   const [newMachine, setNewMachine] = useState("");
   const [newParam, setNewParam] = useState({ machineId: "", testId: "", parameter: "" });
@@ -65,6 +74,7 @@ export default function AdminPanel({ user }) {
   const [editTestId, setEditTestId] = useState(null);
   const [editTestName, setEditTestName] = useState("");
   const [editTestPrice, setEditTestPrice] = useState("");
+  const [editTestSampleType, setEditTestSampleType] = useState("");
 
   const [editSampleId, setEditSampleId] = useState(null);
   const [editSampleType, setEditSampleType] = useState("");
@@ -79,7 +89,10 @@ export default function AdminPanel({ user }) {
 
   // Fetch all master data on mount or tab change
   useEffect(() => {
-    if (activeTab === "test") fetchTests();
+    if (activeTab === "test") {
+      fetchTests();
+      fetchSamples();
+    }
     if (activeTab === "sample") fetchSamples();
     if (activeTab === "machine") fetchMachines();
     if (activeTab === "machineparam") {
@@ -118,10 +131,19 @@ export default function AdminPanel({ user }) {
       setAlert({ show: true, type: "error", msg: "Valid price is required." });
       return;
     }
+    if (!newTestSampleType) {
+      setAlert({ show: true, type: "error", msg: "Sample type is required." });
+      return;
+    }
     try {
-      await api.post("/masters/tests", { testName: newTest.trim(), price: parseFloat(newTestPrice) });
+      await api.post("/masters/tests", {
+        testName: newTest.trim(),
+        price: parseFloat(newTestPrice),
+        sampleType: newTestSampleType
+      });
       setNewTest("");
       setNewTestPrice("");
+      setNewTestSampleType("");
       setAlert({ show: true, type: "success", msg: "Test added successfully!" });
       fetchTests();
     } catch (err) {
@@ -271,6 +293,7 @@ export default function AdminPanel({ user }) {
     setEditTestId(test.id || test._id);
     setEditTestName(test.name || test.testName);
     setEditTestPrice(test.price);
+    setEditTestSampleType(test.sampleType || "");
     setAlert({ show: false, type: "success", msg: "" });
   };
 
@@ -278,6 +301,7 @@ export default function AdminPanel({ user }) {
     setEditTestId(null);
     setEditTestName("");
     setEditTestPrice("");
+    setEditTestSampleType("");
   };
 
   const saveEditTest = async (id) => {
@@ -289,15 +313,21 @@ export default function AdminPanel({ user }) {
       setAlert({ show: true, type: "error", msg: "Valid price is required." });
       return;
     }
+    if (!editTestSampleType) {
+      setAlert({ show: true, type: "error", msg: "Sample type is required." });
+      return;
+    }
     try {
       await api.put(`/masters/tests/${id}`, {
         testName: editTestName.trim(),
-        price: parseFloat(editTestPrice)
+        price: parseFloat(editTestPrice),
+        sampleType: editTestSampleType
       });
       setAlert({ show: true, type: "success", msg: "Test updated successfully!" });
       setEditTestId(null);
       setEditTestName("");
       setEditTestPrice("");
+      setEditTestSampleType("");
       fetchTests();
     } catch (err) {
       setAlert({
@@ -428,535 +458,560 @@ export default function AdminPanel({ user }) {
   const actionBtnGap = 10;
 
   return (
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: 32 }}>
-      <h2 style={{ marginBottom: 8, color: "#1953a8" }}>Admin Panel</h2>
-      <div style={{ marginBottom: 18, color: "#1976d2", fontWeight: 500 }}>Welcome, {user?.username}!</div>
-
-      {alert.show && (
+    <div style={{
+      width: "100vw",
+      minHeight: "100vh",
+      background: "#f4f7fb",
+      margin: 0,
+      padding: 0
+    }}>
+      <div style={{
+        maxWidth: 1200,
+        margin: "0 auto",
+        padding: "24px 18px 32px 18px"
+      }}>
+        <h2 style={{
+          marginBottom: 6,
+          color: "#1953a8",
+          fontWeight: 800,
+          fontSize: "1.35rem",
+          letterSpacing: 1
+        }}>Admin Panel</h2>
         <div style={{
-          background: alert.type === "error" ? "#ffeaea" : "#e6f9ed",
-          color: alert.type === "error" ? "#c0392b" : "#197d4b",
-          border: `1.5px solid ${alert.type === "error" ? "#e74c3c" : "#27ae60"}`,
-          borderRadius: 8,
-          padding: "12px 18px",
-          marginBottom: 18,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
+          marginBottom: 14,
+          color: "#1976d2",
           fontWeight: 500,
-          fontSize: 16
+          fontSize: "1.02rem"
         }}>
-          <span>{alert.msg}</span>
-          <button onClick={dismissAlert} style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", fontSize: 18 }}>
-            <FaTimes />
-          </button>
+          Welcome, {user?.username}!
         </div>
-      )}
+        <div style={{
+          display: "flex",
+          gap: 10,
+          marginBottom: 18,
+          borderBottom: "1.5px solid #e3f0fc",
+          paddingBottom: 4
+        }}>
+          {TABS.map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              style={{
+                padding: "7px 14px",
+                border: "none",
+                borderBottom: activeTab === tab.key ? "3px solid #1976d2" : "3px solid transparent",
+                background: "none",
+                fontWeight: 700,
+                color: activeTab === tab.key ? "#1976d2" : "#444",
+                fontSize: 15.5,
+                cursor: "pointer",
+                transition: "color 0.2s"
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-      <div style={{ display: "flex", gap: 16, marginBottom: 24 }}>
-        {TABS.map(tab => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            style={{
-              padding: "10px 22px",
-              border: "none",
-              borderBottom: activeTab === tab.key ? "3px solid #1976d2" : "3px solid transparent",
-              background: "none",
+        {/* Test Master */}
+        {activeTab === "test" && (
+          <section style={cardStyle}>
+            <h3 style={{
+              marginBottom: 14,
+              color: "#1953a8",
               fontWeight: 700,
-              color: activeTab === tab.key ? "#1976d2" : "#444",
-              fontSize: 17,
-              cursor: "pointer",
-              transition: "color 0.2s"
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Test Master */}
-      {activeTab === "test" && (
-        <section style={cardStyle}>
-          <h3 style={{ marginBottom: 18, color: "#1953a8" }}>Test Master</h3>
-          <div style={{ display: "flex", gap: 10, marginBottom: 18 }}>
-            <input
-              value={newTest}
-              onChange={handleInputChange(setNewTest)}
-              placeholder="Test Name"
-              style={inputStyle}
-            />
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={newTestPrice}
-              onChange={handleInputChange(setNewTestPrice)}
-              placeholder="Price"
-              style={inputStyle}
-            />
-            <button onClick={addTest} style={buttonStyle}><FaPlus /> Add</button>
-          </div>
-          <div style={{
-            overflowX: "auto",
-            borderRadius: 14,
-            boxShadow: "0 2px 16px #e0e0e0",
-            background: "#fff",
-            marginTop: 12
-          }}>
-            <table style={{
-              width: "100%",
-              borderCollapse: "separate",
-              borderSpacing: 0,
-              borderRadius: 14,
-              overflow: "hidden",
-              fontFamily: "inherit"
+              fontSize: "1.08rem"
+            }}>Test Master</h3>
+            <div style={{
+              display: "flex",
+              gap: 8,
+              marginBottom: 14,
+              flexWrap: "wrap",
+              alignItems: "center"
             }}>
-              <thead>
-                <tr style={{
-                  background: tableHeaderBg,
-                  color: tableHeaderColor,
-                  position: "sticky",
-                  top: 0,
-                  zIndex: 2
-                }}>
-                  <th style={{ padding: "16px 12px", textAlign: "left", fontWeight: 700, fontSize: 17, borderBottom: "2px solid #e0e0e0" }}>Test Name</th>
-                  <th style={{ padding: "16px 12px", textAlign: "left", fontWeight: 700, fontSize: 17, borderBottom: "2px solid #e0e0e0" }}>Price</th>
-                  <th style={{ padding: "16px 12px", borderBottom: "2px solid #e0e0e0", width: 180 }}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {tests.map((t, idx) => (
-                  <tr
-                    key={t.id || t._id}
-                    style={{
-                      background: idx % 2 === 0 ? tableRowEven : tableRowOdd,
-                      transition: "background 0.2s"
-                    }}
-                    onMouseOver={e => e.currentTarget.style.background = tableRowHover}
-                    onMouseOut={e => e.currentTarget.style.background = idx % 2 === 0 ? tableRowEven : tableRowOdd}
-                  >
-                    {editTestId === (t.id || t._id) ? (
-                      <>
-                        <td style={{ padding: "12px 10px" }}>
-                          <input
-                            value={editTestName}
-                            onChange={e => setEditTestName(e.target.value)}
-                            style={{ ...inputStyle, width: "90%" }}
-                          />
-                        </td>
-                        <td style={{ padding: "12px 10px" }}>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={editTestPrice}
-                            onChange={e => setEditTestPrice(e.target.value)}
-                            style={{ ...inputStyle, width: "90%" }}
-                          />
-                        </td>
-                        <td style={{ padding: "12px 10px" }}>
-                          <div style={{ display: "flex", gap: actionBtnGap }}>
+              <input value={newTest} onChange={handleInputChange(setNewTest)} placeholder="Test Name" style={inputStyle} />
+              <input type="number" min="0" step="0.01" value={newTestPrice} onChange={handleInputChange(setNewTestPrice)} placeholder="Price" style={inputStyle} />
+              <select value={newTestSampleType} onChange={handleInputChange(setNewTestSampleType)} style={inputStyle}>
+                <option value="">Sample Type</option>
+                {samples.map((s) => (
+                  <option key={s.id || s._id} value={s.type}>{s.type}</option>
+                ))}
+              </select>
+              <button onClick={addTest} style={buttonStyle}><FaPlus /> Add</button>
+            </div>
+            <div style={{
+              overflowX: "auto",
+              borderRadius: 10,
+              boxShadow: "0 1px 8px #e0e0e0",
+              background: "#fafdff",
+              marginTop: 8
+            }}>
+              <table style={{
+                width: "100%",
+                borderCollapse: "separate",
+                borderSpacing: 0,
+                borderRadius: 10,
+                fontFamily: "inherit"
+              }}>
+                <thead>
+                  <tr style={{
+                    background: "#e3f0fc",
+                    color: "#1953a8",
+                    fontSize: 15,
+                    fontWeight: 700
+                  }}>
+                    <th style={{ padding: "10px 8px" }}>Test Name</th>
+                    <th style={{ padding: "10px 8px" }}>Price</th>
+                    <th style={{ padding: "10px 8px" }}>Sample Type</th>
+                    <th style={{ padding: "10px 8px" }}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tests.map((t, idx) => (
+                    <tr key={t.id || t._id} style={{
+                      background: idx % 2 === 0 ? "#f9fbfd" : "#f5f7fa",
+                      fontSize: 14.5
+                    }}>
+                      {editTestId === (t.id || t._id) ? (
+                        <>
+                          <td style={{ padding: "12px 10px" }}>
+                            <input
+                              value={editTestName}
+                              onChange={e => setEditTestName(e.target.value)}
+                              style={{ ...inputStyle, width: "90%" }}
+                            />
+                          </td>
+                          <td style={{ padding: "12px 10px" }}>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={editTestPrice}
+                              onChange={e => setEditTestPrice(e.target.value)}
+                              style={{ ...inputStyle, width: "90%" }}
+                            />
+                          </td>
+                          <td style={{ padding: "12px 10px" }}>
+                            <select
+                              value={editTestSampleType}
+                              onChange={e => setEditTestSampleType(e.target.value)}
+                              style={{ ...inputStyle, width: "90%" }}
+                            >
+                              <option value="">Select Sample Type</option>
+                              {samples.map((s) => (
+                                <option key={s.id || s._id} value={s.type}>{s.type}</option>
+                              ))}
+                            </select>
+                          </td>
+                          <td style={{ padding: "12px 10px" }}>
+                            <div style={{ display: "flex", gap: actionBtnGap }}>
+                              <button
+                                onClick={() => saveEditTest(t.id || t._id)}
+                                style={{ ...buttonStyle, background: "#27ae60", fontSize: 15, padding: "7px 16px" }}
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={cancelEditTest}
+                                style={{ ...buttonStyle, background: "#b0b8c1", color: "#333", fontSize: 15, padding: "7px 16px" }}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td style={{ padding: "12px 10px" }}>{t.name || t.testName}</td>
+                          <td style={{ padding: "12px 10px" }}>
+                            {typeof t.price === "number" ? `₹${t.price.toFixed(2)}` : ""}
+                          </td>
+                          <td style={{ padding: "12px 10px" }}>{t.sampleType}</td>
+                          <td style={{ padding: "12px 10px" }}>
+                            <div style={{ display: "flex", gap: actionBtnGap }}>
+                              <button
+                                onClick={() => startEditTest(t)}
+                                style={{ ...buttonStyle, background: "#f1c40f", color: "#333", fontSize: 15, padding: "7px 16px" }}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => deleteTest(t.id || t._id)}
+                                style={{ ...buttonStyle, background: "#e74c3c", color: "#fff", fontSize: 15, padding: "7px 16px" }}
+                                title="Delete"
+                              >
+                                <FaTrashAlt style={{ marginRight: 4 }} /> Delete
+                              </button>
+                            </div>
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {/* Sample Master */}
+        {activeTab === "sample" && (
+          <section style={cardStyle}>
+            <h3 style={{ marginBottom: 18, color: "#1953a8" }}>Sample Master</h3>
+            <div style={{ display: "flex", gap: 10, marginBottom: 18 }}>
+              <input
+                value={newSample}
+                onChange={handleInputChange(setNewSample)}
+                placeholder="Sample Type"
+                style={inputStyle}
+              />
+              <button onClick={addSample} style={buttonStyle}><FaPlus /> Add</button>
+            </div>
+            <div style={{
+              overflowX: "auto",
+              borderRadius: 14,
+              boxShadow: "0 2px 16px #e0e0e0",
+              background: "#fff",
+              marginTop: 12
+            }}>
+              <table style={{
+                width: "100%",
+                borderCollapse: "separate",
+                borderSpacing: 0,
+                borderRadius: 14,
+                overflow: "hidden",
+                fontFamily: "inherit"
+              }}>
+                <thead>
+                  <tr style={{
+                    background: tableHeaderBg,
+                    color: tableHeaderColor,
+                    position: "sticky",
+                    top: 0,
+                    zIndex: 2
+                  }}>
+                    <th style={{ padding: "16px 12px", textAlign: "left", fontWeight: 700, fontSize: 17, borderBottom: "2px solid #e0e0e0" }}>Sample Type</th>
+                    <th style={{ padding: "16px 12px", borderBottom: "2px solid #e0e0e0" }}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {samples.map((s, idx) => (
+                    <tr
+                      key={s.id || s._id}
+                      style={{
+                        background: idx % 2 === 0 ? tableRowEven : tableRowOdd,
+                        transition: "background 0.2s"
+                      }}
+                      onMouseOver={e => e.currentTarget.style.background = tableRowHover}
+                      onMouseOut={e => e.currentTarget.style.background = idx % 2 === 0 ? tableRowEven : tableRowOdd}
+                    >
+                      {editSampleId === (s.id || s._id) ? (
+                        <>
+                          <td style={{ padding: 8 }}>
+                            <input
+                              value={editSampleType}
+                              onChange={e => setEditSampleType(e.target.value)}
+                              style={inputStyle}
+                            />
+                          </td>
+                          <td style={{ padding: 8, display: "flex", gap: 8 }}>
                             <button
-                              onClick={() => saveEditTest(t.id || t._id)}
-                              style={{ ...buttonStyle, background: "#27ae60", fontSize: 15, padding: "7px 16px" }}
+                              onClick={() => saveEditSample(s.id || s._id)}
+                              style={{ ...buttonStyle, background: "#27ae60" }}
                             >
                               Save
                             </button>
                             <button
-                              onClick={cancelEditTest}
-                              style={{ ...buttonStyle, background: "#b0b8c1", color: "#333", fontSize: 15, padding: "7px 16px" }}
+                              onClick={cancelEditSample}
+                              style={{ ...buttonStyle, background: "#b0b8c1", color: "#333" }}
                             >
                               Cancel
                             </button>
-                          </div>
-                        </td>
-                      </>
-                    ) : (
-                      <>
-                        <td style={{ padding: "12px 10px" }}>{t.name || t.testName}</td>
-                        <td style={{ padding: "12px 10px" }}>
-                          {typeof t.price === "number" ? `₹${t.price.toFixed(2)}` : ""}
-                        </td>
-                        <td style={{ padding: "12px 10px" }}>
-                          <div style={{ display: "flex", gap: actionBtnGap }}>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td style={{ padding: 8 }}>{s.type}</td>
+                          <td style={{ padding: 8, display: "flex", gap: 8 }}>
                             <button
-                              onClick={() => startEditTest(t)}
-                              style={{ ...buttonStyle, background: "#f1c40f", color: "#333", fontSize: 15, padding: "7px 16px" }}
+                              onClick={() => startEditSample(s)}
+                              style={{ ...buttonStyle, background: "#f1c40f", color: "#333" }}
                             >
                               Edit
                             </button>
                             <button
-                              onClick={() => deleteTest(t.id || t._id)}
-                              style={{ ...buttonStyle, background: "#e74c3c", color: "#fff", fontSize: 15, padding: "7px 16px" }}
+                              onClick={() => deleteSample(s.id || s._id)}
+                              style={deleteBtnStyle}
                               title="Delete"
                             >
-                              <FaTrashAlt style={{ marginRight: 4 }} /> Delete
+                              <FaTrashAlt />
                             </button>
-                          </div>
-                        </td>
-                      </>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
 
-      {/* Sample Master */}
-      {activeTab === "sample" && (
-        <section style={cardStyle}>
-          <h3 style={{ marginBottom: 18, color: "#1953a8" }}>Sample Master</h3>
-          <div style={{ display: "flex", gap: 10, marginBottom: 18 }}>
-            <input
-              value={newSample}
-              onChange={handleInputChange(setNewSample)}
-              placeholder="Sample Type"
-              style={inputStyle}
-            />
-            <button onClick={addSample} style={buttonStyle}><FaPlus /> Add</button>
-          </div>
-          <div style={{
-            overflowX: "auto",
-            borderRadius: 14,
-            boxShadow: "0 2px 16px #e0e0e0",
-            background: "#fff",
-            marginTop: 12
-          }}>
-            <table style={{
-              width: "100%",
-              borderCollapse: "separate",
-              borderSpacing: 0,
+        {/* Machine Master */}
+        {activeTab === "machine" && (
+          <section style={cardStyle}>
+            <h3 style={{ marginBottom: 18, color: "#1953a8" }}>Machine Master</h3>
+            <div style={{ display: "flex", gap: 10, marginBottom: 18 }}>
+              <input
+                value={newMachine}
+                onChange={handleInputChange(setNewMachine)}
+                placeholder="Machine Name"
+                style={inputStyle}
+              />
+              <button onClick={addMachine} style={buttonStyle}><FaPlus /> Add</button>
+            </div>
+            <div style={{
+              overflowX: "auto",
               borderRadius: 14,
-              overflow: "hidden",
-              fontFamily: "inherit"
+              boxShadow: "0 2px 16px #e0e0e0",
+              background: "#fff",
+              marginTop: 12
             }}>
-              <thead>
-                <tr style={{
-                  background: tableHeaderBg,
-                  color: tableHeaderColor,
-                  position: "sticky",
-                  top: 0,
-                  zIndex: 2
-                }}>
-                  <th style={{ padding: "16px 12px", textAlign: "left", fontWeight: 700, fontSize: 17, borderBottom: "2px solid #e0e0e0" }}>Sample Type</th>
-                  <th style={{ padding: "16px 12px", borderBottom: "2px solid #e0e0e0" }}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {samples.map((s, idx) => (
-                  <tr
-                    key={s.id || s._id}
-                    style={{
-                      background: idx % 2 === 0 ? tableRowEven : tableRowOdd,
-                      transition: "background 0.2s"
-                    }}
-                    onMouseOver={e => e.currentTarget.style.background = tableRowHover}
-                    onMouseOut={e => e.currentTarget.style.background = idx % 2 === 0 ? tableRowEven : tableRowOdd}
-                  >
-                    {editSampleId === (s.id || s._id) ? (
-                      <>
-                        <td style={{ padding: 8 }}>
-                          <input
-                            value={editSampleType}
-                            onChange={e => setEditSampleType(e.target.value)}
-                            style={inputStyle}
-                          />
-                        </td>
-                        <td style={{ padding: 8, display: "flex", gap: 8 }}>
-                          <button
-                            onClick={() => saveEditSample(s.id || s._id)}
-                            style={{ ...buttonStyle, background: "#27ae60" }}
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={cancelEditSample}
-                            style={{ ...buttonStyle, background: "#b0b8c1", color: "#333" }}
-                          >
-                            Cancel
-                          </button>
-                        </td>
-                      </>
-                    ) : (
-                      <>
-                        <td style={{ padding: 8 }}>{s.type}</td>
-                        <td style={{ padding: 8, display: "flex", gap: 8 }}>
-                          <button
-                            onClick={() => startEditSample(s)}
-                            style={{ ...buttonStyle, background: "#f1c40f", color: "#333" }}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => deleteSample(s.id || s._id)}
-                            style={deleteBtnStyle}
-                            title="Delete"
-                          >
-                            <FaTrashAlt />
-                          </button>
-                        </td>
-                      </>
-                    )}
+              <table style={{
+                width: "100%",
+                borderCollapse: "separate",
+                borderSpacing: 0,
+                borderRadius: 14,
+                overflow: "hidden",
+                fontFamily: "inherit"
+              }}>
+                <thead>
+                  <tr style={{
+                    background: tableHeaderBg,
+                    color: tableHeaderColor,
+                    position: "sticky",
+                    top: 0,
+                    zIndex: 2
+                  }}>
+                    <th style={{ padding: "16px 12px", textAlign: "left", fontWeight: 700, fontSize: 17, borderBottom: "2px solid #e0e0e0" }}>Machine Name</th>
+                    <th style={{ padding: "16px 12px", borderBottom: "2px solid #e0e0e0" }}></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
+                </thead>
+                <tbody>
+                  {machines.map((m, idx) => (
+                    <tr
+                      key={m.id || m._id}
+                      style={{
+                        background: idx % 2 === 0 ? tableRowEven : tableRowOdd,
+                        transition: "background 0.2s"
+                      }}
+                      onMouseOver={e => e.currentTarget.style.background = tableRowHover}
+                      onMouseOut={e => e.currentTarget.style.background = idx % 2 === 0 ? tableRowEven : tableRowOdd}
+                    >
+                      {editMachineId === (m.id || m._id) ? (
+                        <>
+                          <td style={{ padding: 8 }}>
+                            <input
+                              value={editMachineName}
+                              onChange={e => setEditMachineName(e.target.value)}
+                              style={inputStyle}
+                            />
+                          </td>
+                          <td style={{ padding: 8, display: "flex", gap: 8 }}>
+                            <button
+                              onClick={() => saveEditMachine(m.id || m._id)}
+                              style={{ ...buttonStyle, background: "#27ae60" }}
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={cancelEditMachine}
+                              style={{ ...buttonStyle, background: "#b0b8c1", color: "#333" }}
+                            >
+                              Cancel
+                            </button>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td style={{ padding: 8 }}>{m.name}</td>
+                          <td style={{ padding: 8, display: "flex", gap: 8 }}>
+                            <button
+                              onClick={() => startEditMachine(m)}
+                              style={{ ...buttonStyle, background: "#f1c40f", color: "#333" }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => deleteMachine(m.id || m._id)}
+                              style={deleteBtnStyle}
+                              title="Delete"
+                            >
+                              <FaTrashAlt />
+                            </button>
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
 
-      {/* Machine Master */}
-      {activeTab === "machine" && (
-        <section style={cardStyle}>
-          <h3 style={{ marginBottom: 18, color: "#1953a8" }}>Machine Master</h3>
-          <div style={{ display: "flex", gap: 10, marginBottom: 18 }}>
-            <input
-              value={newMachine}
-              onChange={handleInputChange(setNewMachine)}
-              placeholder="Machine Name"
-              style={inputStyle}
-            />
-            <button onClick={addMachine} style={buttonStyle}><FaPlus /> Add</button>
-          </div>
-          <div style={{
-            overflowX: "auto",
-            borderRadius: 14,
-            boxShadow: "0 2px 16px #e0e0e0",
-            background: "#fff",
-            marginTop: 12
-          }}>
-            <table style={{
-              width: "100%",
-              borderCollapse: "separate",
-              borderSpacing: 0,
+        {/* Machine Parameter Test Master */}
+        {activeTab === "machineparam" && (
+          <section style={cardStyle}>
+            <h3 style={{ marginBottom: 18, color: "#1953a8" }}>Machine Parameter Test Master</h3>
+            <div style={{ display: "flex", gap: 10, marginBottom: 18, flexWrap: "wrap" }}>
+              <select
+                value={newParam.machineId}
+                onChange={handleParamChange("machineId")}
+                style={inputStyle}
+              >
+                <option value="">Select Machine</option>
+                {machines.map((m) => <option key={m.id || m._id} value={m.id || m._id}>{m.name}</option>)}
+              </select>
+              <select
+                value={newParam.testId}
+                onChange={handleParamChange("testId")}
+                style={inputStyle}
+              >
+                <option value="">Select Test</option>
+                {tests.map((t) => <option key={t.id || t._id} value={t.id || t._id}>{t.name || t.testName}</option>)}
+              </select>
+              <input
+                value={newParam.parameter}
+                onChange={handleParamChange("parameter")}
+                placeholder="Parameter Name"
+                style={inputStyle}
+              />
+              <button onClick={addMachineParam} style={buttonStyle}><FaPlus /> Add</button>
+            </div>
+            <div style={{
+              overflowX: "auto",
               borderRadius: 14,
-              overflow: "hidden",
-              fontFamily: "inherit"
+              boxShadow: "0 2px 16px #e0e0e0",
+              background: "#fff",
+              marginTop: 12
             }}>
-              <thead>
-                <tr style={{
-                  background: tableHeaderBg,
-                  color: tableHeaderColor,
-                  position: "sticky",
-                  top: 0,
-                  zIndex: 2
-                }}>
-                  <th style={{ padding: "16px 12px", textAlign: "left", fontWeight: 700, fontSize: 17, borderBottom: "2px solid #e0e0e0" }}>Machine Name</th>
-                  <th style={{ padding: "16px 12px", borderBottom: "2px solid #e0e0e0" }}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {machines.map((m, idx) => (
-                  <tr
-                    key={m.id || m._id}
-                    style={{
-                      background: idx % 2 === 0 ? tableRowEven : tableRowOdd,
-                      transition: "background 0.2s"
-                    }}
-                    onMouseOver={e => e.currentTarget.style.background = tableRowHover}
-                    onMouseOut={e => e.currentTarget.style.background = idx % 2 === 0 ? tableRowEven : tableRowOdd}
-                  >
-                    {editMachineId === (m.id || m._id) ? (
-                      <>
-                        <td style={{ padding: 8 }}>
-                          <input
-                            value={editMachineName}
-                            onChange={e => setEditMachineName(e.target.value)}
-                            style={inputStyle}
-                          />
-                        </td>
-                        <td style={{ padding: 8, display: "flex", gap: 8 }}>
-                          <button
-                            onClick={() => saveEditMachine(m.id || m._id)}
-                            style={{ ...buttonStyle, background: "#27ae60" }}
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={cancelEditMachine}
-                            style={{ ...buttonStyle, background: "#b0b8c1", color: "#333" }}
-                          >
-                            Cancel
-                          </button>
-                        </td>
-                      </>
-                    ) : (
-                      <>
-                        <td style={{ padding: 8 }}>{m.name}</td>
-                        <td style={{ padding: 8, display: "flex", gap: 8 }}>
-                          <button
-                            onClick={() => startEditMachine(m)}
-                            style={{ ...buttonStyle, background: "#f1c40f", color: "#333" }}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => deleteMachine(m.id || m._id)}
-                            style={deleteBtnStyle}
-                            title="Delete"
-                          >
-                            <FaTrashAlt />
-                          </button>
-                        </td>
-                      </>
-                    )}
+              <table style={{
+                width: "100%",
+                borderCollapse: "separate",
+                borderSpacing: 0,
+                borderRadius: 14,
+                overflow: "hidden",
+                fontFamily: "inherit"
+              }}>
+                <thead>
+                  <tr style={{
+                    background: tableHeaderBg,
+                    color: tableHeaderColor,
+                    position: "sticky",
+                    top: 0,
+                    zIndex: 2
+                  }}>
+                    <th style={{ padding: "14px 10px" }}>Machine</th>
+                    <th style={{ padding: "14px 10px" }}>Test</th>
+                    <th style={{ padding: "14px 10px" }}>Parameter</th>
+                    <th style={{ padding: "14px 10px" }}></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
+                </thead>
+                <tbody>
+                  {machineParams.map((mp, idx) => (
+                    <tr
+                      key={mp.id || mp._id}
+                      style={{
+                        background: idx % 2 === 0 ? tableRowEven : tableRowOdd,
+                        transition: "background 0.2s"
+                      }}
+                      onMouseOver={e => e.currentTarget.style.background = tableRowHover}
+                      onMouseOut={e => e.currentTarget.style.background = idx % 2 === 0 ? tableRowEven : tableRowOdd}
+                    >
+                      {editParamId === (mp.id || mp._id) ? (
+                        <>
+                          <td style={{ padding: 8 }}>
+                            <select
+                              value={editParamMachineId}
+                              onChange={e => setEditParamMachineId(e.target.value)}
+                              style={inputStyle}
+                            >
+                              <option value="">Select Machine</option>
+                              {machines.map((m) => (
+                                <option key={m.id || m._id} value={m.id || m._id}>{m.name}</option>
+                              ))}
+                            </select>
+                          </td>
+                          <td style={{ padding: 8 }}>
+                            <select
+                              value={editParamTestId}
+                              onChange={e => setEditParamTestId(e.target.value)}
+                              style={inputStyle}
+                            >
+                              <option value="">Select Test</option>
+                              {tests.map((t) => (
+                                <option key={t.id || t._id} value={t.id || t._id}>{t.name || t.testName}</option>
+                              ))}
+                            </select>
+                          </td>
+                          <td style={{ padding: 8 }}>
+                            <input
+                              value={editParamName}
+                              onChange={e => setEditParamName(e.target.value)}
+                              style={inputStyle}
+                            />
+                          </td>
+                          <td style={{ padding: 8, display: "flex", gap: 8 }}>
+                            <button
+                              onClick={() => saveEditParam(mp.id || mp._id)}
+                              style={{ ...buttonStyle, background: "#27ae60" }}
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={cancelEditParam}
+                              style={{ ...buttonStyle, background: "#b0b8c1", color: "#333" }}
+                            >
+                              Cancel
+                            </button>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td style={{ padding: 8 }}>{mp.machine?.name || mp.machine}</td>
+                          <td style={{ padding: 8 }}>{mp.test?.name || mp.test?.testName || mp.test}</td>
+                          <td style={{ padding: 8 }}>{mp.parameter}</td>
+                          <td style={{ padding: 8, display: "flex", gap: 8 }}>
+                            <button
+                              onClick={() => startEditParam(mp)}
+                              style={{ ...buttonStyle, background: "#f1c40f", color: "#333" }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => deleteMachineParam(mp.id || mp._id)}
+                              style={deleteBtnStyle}
+                              title="Delete"
+                            >
+                              <FaTrashAlt />
+                            </button>
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
 
-      {/* Machine Parameter Test Master */}
-      {activeTab === "machineparam" && (
-        <section style={cardStyle}>
-          <h3 style={{ marginBottom: 18, color: "#1953a8" }}>Machine Parameter Test Master</h3>
-          <div style={{ display: "flex", gap: 10, marginBottom: 18, flexWrap: "wrap" }}>
-            <select
-              value={newParam.machineId}
-              onChange={handleParamChange("machineId")}
-              style={inputStyle}
-            >
-              <option value="">Select Machine</option>
-              {machines.map((m) => <option key={m.id || m._id} value={m.id || m._id}>{m.name}</option>)}
-            </select>
-            <select
-              value={newParam.testId}
-              onChange={handleParamChange("testId")}
-              style={inputStyle}
-            >
-              <option value="">Select Test</option>
-              {tests.map((t) => <option key={t.id || t._id} value={t.id || t._id}>{t.name || t.testName}</option>)}
-            </select>
-            <input
-              value={newParam.parameter}
-              onChange={handleParamChange("parameter")}
-              placeholder="Parameter Name"
-              style={inputStyle}
-            />
-            <button onClick={addMachineParam} style={buttonStyle}><FaPlus /> Add</button>
-          </div>
-          <div style={{
-            overflowX: "auto",
-            borderRadius: 14,
-            boxShadow: "0 2px 16px #e0e0e0",
-            background: "#fff",
-            marginTop: 12
-          }}>
-            <table style={{
-              width: "100%",
-              borderCollapse: "separate",
-              borderSpacing: 0,
-              borderRadius: 14,
-              overflow: "hidden",
-              fontFamily: "inherit"
-            }}>
-              <thead>
-                <tr style={{
-                  background: tableHeaderBg,
-                  color: tableHeaderColor,
-                  position: "sticky",
-                  top: 0,
-                  zIndex: 2
-                }}>
-                  <th style={{ padding: "14px 10px" }}>Machine</th>
-                  <th style={{ padding: "14px 10px" }}>Test</th>
-                  <th style={{ padding: "14px 10px" }}>Parameter</th>
-                  <th style={{ padding: "14px 10px" }}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {machineParams.map((mp, idx) => (
-                  <tr
-                    key={mp.id || mp._id}
-                    style={{
-                      background: idx % 2 === 0 ? tableRowEven : tableRowOdd,
-                      transition: "background 0.2s"
-                    }}
-                    onMouseOver={e => e.currentTarget.style.background = tableRowHover}
-                    onMouseOut={e => e.currentTarget.style.background = idx % 2 === 0 ? tableRowEven : tableRowOdd}
-                  >
-                    {editParamId === (mp.id || mp._id) ? (
-                      <>
-                        <td style={{ padding: 8 }}>
-                          <select
-                            value={editParamMachineId}
-                            onChange={e => setEditParamMachineId(e.target.value)}
-                            style={inputStyle}
-                          >
-                            <option value="">Select Machine</option>
-                            {machines.map((m) => (
-                              <option key={m.id || m._id} value={m.id || m._id}>{m.name}</option>
-                            ))}
-                          </select>
-                        </td>
-                        <td style={{ padding: 8 }}>
-                          <select
-                            value={editParamTestId}
-                            onChange={e => setEditParamTestId(e.target.value)}
-                            style={inputStyle}
-                          >
-                            <option value="">Select Test</option>
-                            {tests.map((t) => (
-                              <option key={t.id || t._id} value={t.id || t._id}>{t.name || t.testName}</option>
-                            ))}
-                          </select>
-                        </td>
-                        <td style={{ padding: 8 }}>
-                          <input
-                            value={editParamName}
-                            onChange={e => setEditParamName(e.target.value)}
-                            style={inputStyle}
-                          />
-                        </td>
-                        <td style={{ padding: 8, display: "flex", gap: 8 }}>
-                          <button
-                            onClick={() => saveEditParam(mp.id || mp._id)}
-                            style={{ ...buttonStyle, background: "#27ae60" }}
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={cancelEditParam}
-                            style={{ ...buttonStyle, background: "#b0b8c1", color: "#333" }}
-                          >
-                            Cancel
-                          </button>
-                        </td>
-                      </>
-                    ) : (
-                      <>
-                        <td style={{ padding: 8 }}>{mp.machine?.name || mp.machine}</td>
-                        <td style={{ padding: 8 }}>{mp.test?.name || mp.test?.testName || mp.test}</td>
-                        <td style={{ padding: 8 }}>{mp.parameter}</td>
-                        <td style={{ padding: 8, display: "flex", gap: 8 }}>
-                          <button
-                            onClick={() => startEditParam(mp)}
-                            style={{ ...buttonStyle, background: "#f1c40f", color: "#333" }}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => deleteMachineParam(mp.id || mp._id)}
-                            style={deleteBtnStyle}
-                            title="Delete"
-                          >
-                            <FaTrashAlt />
-                          </button>
-                        </td>
-                      </>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
+        {/* Test Group Master */}
+        {activeTab === "testgroup" && (
+          <TestGroupMaster />
+        )}
+      </div>
     </div>
   );
 }

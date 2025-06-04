@@ -1,5 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { FaVial, FaUsers, FaFileInvoice, FaClipboardList, FaFlask, FaFileAlt } from "react-icons/fa";
 import "../../styles/sidebar.css";
 
 const Sidebar = () => (
@@ -80,6 +81,14 @@ const Sidebar = () => (
         end
       >
         Billing
+      </NavLink>
+      <div className="sidebar-section">Results</div>
+      <NavLink
+        to="/result-entry"
+        className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}
+        end
+      >
+        Result Entry
       </NavLink>
     </nav>
   </aside>

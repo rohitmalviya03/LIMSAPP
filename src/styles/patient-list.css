@@ -1,0 +1,129 @@
+.patient-list-bg {
+  min-height: 100vh;
+  background: linear-gradient(120deg, #e3f0fc 0%, #fafdff 100%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.patient-list-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 32px #1976d230;
+  padding: 38px 38px 28px 38px;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 16px;
+}
+
+.patient-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.patient-list-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.patient-list-search {
+  padding: 8px 14px;
+  border-radius: 7px;
+  border: 1px solid #bcd;
+  font-size: 1rem;
+  background: #fafdff;
+  width: 220px;
+}
+
+.btn-modern {
+  background: linear-gradient(90deg, #1976d2 60%, #42a5f5 100%);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 10px 26px;
+  font-size: 1.08rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 12px #1976d220;
+  transition: background 0.18s;
+  text-decoration: none;
+}
+
+.btn-modern:hover {
+  background: linear-gradient(90deg, #1565c0 60%, #1976d2 100%);
+}
+
+.patient-table-responsive {
+  overflow-x: auto;
+}
+
+.patient-table-modern {
+  width: 100%;
+  border-spacing: 0;
+  font-size: 16px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fafdff;
+}
+
+.patient-table-modern th, .patient-table-modern td {
+  padding: 14px 10px;
+  text-align: left;
+}
+
+.patient-table-modern th {
+  background: #e3f0fc;
+  color: #1976d2;
+  font-weight: 700;
+  border-bottom: 2px solid #dbeafe;
+}
+
+.patient-table-modern tr {
+  transition: background 0.2s;
+}
+
+.patient-table-modern tr:hover {
+  background: #f0f7ff;
+}
+
+.status-pill-patient {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: #e3f0fc;
+  color: #1976d2;
+  letter-spacing: 0.5px;
+}
+
+.status-pill-patient.active {
+  background: #e7fbe7;
+  color: #2e7d32;
+}
+.status-pill-patient.inactive {
+  background: #ffeaea;
+  color: #d32f2f;
+}
+
+.details-link-modern {
+  color: #1976d2;
+  font-weight: 600;
+  text-decoration: underline;
+  transition: color 0.18s;
+}
+
+.details-link-modern:hover {
+  color: #1565c0;
+}
+
+.fade-in {
+  animation: fadeIn 0.7s;
+}
