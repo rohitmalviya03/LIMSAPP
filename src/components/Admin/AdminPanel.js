@@ -419,6 +419,14 @@ export default function AdminPanel({ user }) {
   // Dismiss alert
   const dismissAlert = () => setAlert({ ...alert, show: false });
 
+  // Theme variables
+  const tableHeaderBg = "#f4f7fb";
+  const tableHeaderColor = "#1953a8";
+  const tableRowEven = "#f9fbfd";
+  const tableRowOdd = "#f5f7fa";
+  const tableRowHover = "#e3f0ff";
+  const actionBtnGap = 10;
+
   return (
     <div style={{ maxWidth: 900, margin: "0 auto", padding: 32 }}>
       <h2 style={{ marginBottom: 8, color: "#1953a8" }}>Admin Panel</h2>
@@ -491,26 +499,30 @@ export default function AdminPanel({ user }) {
           </div>
           <div style={{
             overflowX: "auto",
-            borderRadius: 12,
-            boxShadow: "0 1px 8px #e0e0e0",
+            borderRadius: 14,
+            boxShadow: "0 2px 16px #e0e0e0",
             background: "#fff",
-            marginTop: 8
+            marginTop: 12
           }}>
             <table style={{
               width: "100%",
               borderCollapse: "separate",
               borderSpacing: 0,
-              borderRadius: 12,
-              overflow: "hidden"
+              borderRadius: 14,
+              overflow: "hidden",
+              fontFamily: "inherit"
             }}>
               <thead>
                 <tr style={{
-                  background: "linear-gradient(90deg, #e3eaf4 60%, #f5f7fa 100%)",
-                  color: "#1953a8"
+                  background: tableHeaderBg,
+                  color: tableHeaderColor,
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 2
                 }}>
-                  <th style={{ padding: "14px 10px", textAlign: "left", fontWeight: 700, fontSize: 16, borderBottom: "1.5px solid #e0e0e0" }}>Test Name</th>
-                  <th style={{ padding: "14px 10px", textAlign: "left", fontWeight: 700, fontSize: 16, borderBottom: "1.5px solid #e0e0e0" }}>Price</th>
-                  <th style={{ padding: "14px 10px", borderBottom: "1.5px solid #e0e0e0" }}></th>
+                  <th style={{ padding: "16px 12px", textAlign: "left", fontWeight: 700, fontSize: 17, borderBottom: "2px solid #e0e0e0" }}>Test Name</th>
+                  <th style={{ padding: "16px 12px", textAlign: "left", fontWeight: 700, fontSize: 17, borderBottom: "2px solid #e0e0e0" }}>Price</th>
+                  <th style={{ padding: "16px 12px", borderBottom: "2px solid #e0e0e0", width: 180 }}></th>
                 </tr>
               </thead>
               <tbody>
@@ -518,67 +530,70 @@ export default function AdminPanel({ user }) {
                   <tr
                     key={t.id || t._id}
                     style={{
-                      background: idx % 2 === 0 ? "#f9fbfd" : "#f5f7fa",
-                      transition: "background 0.2s",
-                      borderRadius: 8
+                      background: idx % 2 === 0 ? tableRowEven : tableRowOdd,
+                      transition: "background 0.2s"
                     }}
-                    onMouseOver={e => e.currentTarget.style.background = "#e8f0fe"}
-                    onMouseOut={e => e.currentTarget.style.background = idx % 2 === 0 ? "#f9fbfd" : "#f5f7fa"}
+                    onMouseOver={e => e.currentTarget.style.background = tableRowHover}
+                    onMouseOut={e => e.currentTarget.style.background = idx % 2 === 0 ? tableRowEven : tableRowOdd}
                   >
                     {editTestId === (t.id || t._id) ? (
                       <>
-                        <td style={{ padding: 8 }}>
+                        <td style={{ padding: "12px 10px" }}>
                           <input
                             value={editTestName}
                             onChange={e => setEditTestName(e.target.value)}
-                            style={inputStyle}
+                            style={{ ...inputStyle, width: "90%" }}
                           />
                         </td>
-                        <td style={{ padding: 8 }}>
+                        <td style={{ padding: "12px 10px" }}>
                           <input
                             type="number"
                             min="0"
                             step="0.01"
                             value={editTestPrice}
                             onChange={e => setEditTestPrice(e.target.value)}
-                            style={inputStyle}
+                            style={{ ...inputStyle, width: "90%" }}
                           />
                         </td>
-                        <td style={{ padding: 8, display: "flex", gap: 8 }}>
-                          <button
-                            onClick={() => saveEditTest(t.id || t._id)}
-                            style={{ ...buttonStyle, background: "#27ae60" }}
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={cancelEditTest}
-                            style={{ ...buttonStyle, background: "#b0b8c1", color: "#333" }}
-                          >
-                            Cancel
-                          </button>
+                        <td style={{ padding: "12px 10px" }}>
+                          <div style={{ display: "flex", gap: actionBtnGap }}>
+                            <button
+                              onClick={() => saveEditTest(t.id || t._id)}
+                              style={{ ...buttonStyle, background: "#27ae60", fontSize: 15, padding: "7px 16px" }}
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={cancelEditTest}
+                              style={{ ...buttonStyle, background: "#b0b8c1", color: "#333", fontSize: 15, padding: "7px 16px" }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
                         </td>
                       </>
                     ) : (
                       <>
-                        <td style={{ padding: 8 }}>{t.name || t.testName}</td>
-                        <td style={{ padding: 8 }}>
+                        <td style={{ padding: "12px 10px" }}>{t.name || t.testName}</td>
+                        <td style={{ padding: "12px 10px" }}>
                           {typeof t.price === "number" ? `₹${t.price.toFixed(2)}` : ""}
                         </td>
-                        <td style={{ padding: 8, display: "flex", gap: 8 }}>
-                          <button
-                            onClick={() => startEditTest(t)}
-                            style={{ ...buttonStyle, background: "#f1c40f", color: "#333" }}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => deleteTest(t.id || t._id)}
-                            style={deleteBtnStyle}
-                            title="Delete"
-                          >
-                            <FaTrashAlt />
-                          </button>
+                        <td style={{ padding: "12px 10px" }}>
+                          <div style={{ display: "flex", gap: actionBtnGap }}>
+                            <button
+                              onClick={() => startEditTest(t)}
+                              style={{ ...buttonStyle, background: "#f1c40f", color: "#333", fontSize: 15, padding: "7px 16px" }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => deleteTest(t.id || t._id)}
+                              style={{ ...buttonStyle, background: "#e74c3c", color: "#fff", fontSize: 15, padding: "7px 16px" }}
+                              title="Delete"
+                            >
+                              <FaTrashAlt style={{ marginRight: 4 }} /> Delete
+                            </button>
+                          </div>
                         </td>
                       </>
                     )}
@@ -605,25 +620,29 @@ export default function AdminPanel({ user }) {
           </div>
           <div style={{
             overflowX: "auto",
-            borderRadius: 12,
-            boxShadow: "0 1px 8px #e0e0e0",
+            borderRadius: 14,
+            boxShadow: "0 2px 16px #e0e0e0",
             background: "#fff",
-            marginTop: 8
+            marginTop: 12
           }}>
             <table style={{
               width: "100%",
               borderCollapse: "separate",
               borderSpacing: 0,
-              borderRadius: 12,
-              overflow: "hidden"
+              borderRadius: 14,
+              overflow: "hidden",
+              fontFamily: "inherit"
             }}>
               <thead>
                 <tr style={{
-                  background: "linear-gradient(90deg, #e3eaf4 60%, #f5f7fa 100%)",
-                  color: "#1953a8"
+                  background: tableHeaderBg,
+                  color: tableHeaderColor,
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 2
                 }}>
-                  <th style={{ padding: "14px 10px", textAlign: "left", fontWeight: 700, fontSize: 16, borderBottom: "1.5px solid #e0e0e0" }}>Sample Type</th>
-                  <th style={{ padding: "14px 10px", borderBottom: "1.5px solid #e0e0e0" }}></th>
+                  <th style={{ padding: "16px 12px", textAlign: "left", fontWeight: 700, fontSize: 17, borderBottom: "2px solid #e0e0e0" }}>Sample Type</th>
+                  <th style={{ padding: "16px 12px", borderBottom: "2px solid #e0e0e0" }}></th>
                 </tr>
               </thead>
               <tbody>
@@ -631,12 +650,11 @@ export default function AdminPanel({ user }) {
                   <tr
                     key={s.id || s._id}
                     style={{
-                      background: idx % 2 === 0 ? "#f9fbfd" : "#f5f7fa",
-                      transition: "background 0.2s",
-                      borderRadius: 8
+                      background: idx % 2 === 0 ? tableRowEven : tableRowOdd,
+                      transition: "background 0.2s"
                     }}
-                    onMouseOver={e => e.currentTarget.style.background = "#e8f0fe"}
-                    onMouseOut={e => e.currentTarget.style.background = idx % 2 === 0 ? "#f9fbfd" : "#f5f7fa"}
+                    onMouseOver={e => e.currentTarget.style.background = tableRowHover}
+                    onMouseOut={e => e.currentTarget.style.background = idx % 2 === 0 ? tableRowEven : tableRowOdd}
                   >
                     {editSampleId === (s.id || s._id) ? (
                       <>
@@ -705,25 +723,29 @@ export default function AdminPanel({ user }) {
           </div>
           <div style={{
             overflowX: "auto",
-            borderRadius: 12,
-            boxShadow: "0 1px 8px #e0e0e0",
+            borderRadius: 14,
+            boxShadow: "0 2px 16px #e0e0e0",
             background: "#fff",
-            marginTop: 8
+            marginTop: 12
           }}>
             <table style={{
               width: "100%",
               borderCollapse: "separate",
               borderSpacing: 0,
-              borderRadius: 12,
-              overflow: "hidden"
+              borderRadius: 14,
+              overflow: "hidden",
+              fontFamily: "inherit"
             }}>
               <thead>
                 <tr style={{
-                  background: "linear-gradient(90deg, #e3eaf4 60%, #f5f7fa 100%)",
-                  color: "#1953a8"
+                  background: tableHeaderBg,
+                  color: tableHeaderColor,
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 2
                 }}>
-                  <th style={{ padding: "14px 10px", textAlign: "left", fontWeight: 700, fontSize: 16, borderBottom: "1.5px solid #e0e0e0" }}>Machine Name</th>
-                  <th style={{ padding: "14px 10px", borderBottom: "1.5px solid #e0e0e0" }}></th>
+                  <th style={{ padding: "16px 12px", textAlign: "left", fontWeight: 700, fontSize: 17, borderBottom: "2px solid #e0e0e0" }}>Machine Name</th>
+                  <th style={{ padding: "16px 12px", borderBottom: "2px solid #e0e0e0" }}></th>
                 </tr>
               </thead>
               <tbody>
@@ -731,12 +753,11 @@ export default function AdminPanel({ user }) {
                   <tr
                     key={m.id || m._id}
                     style={{
-                      background: idx % 2 === 0 ? "#f9fbfd" : "#f5f7fa",
-                      transition: "background 0.2s",
-                      borderRadius: 8
+                      background: idx % 2 === 0 ? tableRowEven : tableRowOdd,
+                      transition: "background 0.2s"
                     }}
-                    onMouseOver={e => e.currentTarget.style.background = "#e8f0fe"}
-                    onMouseOut={e => e.currentTarget.style.background = idx % 2 === 0 ? "#f9fbfd" : "#f5f7fa"}
+                    onMouseOver={e => e.currentTarget.style.background = tableRowHover}
+                    onMouseOut={e => e.currentTarget.style.background = idx % 2 === 0 ? tableRowEven : tableRowOdd}
                   >
                     {editMachineId === (m.id || m._id) ? (
                       <>
@@ -821,22 +842,26 @@ export default function AdminPanel({ user }) {
           </div>
           <div style={{
             overflowX: "auto",
-            borderRadius: 12,
-            boxShadow: "0 1px 8px #e0e0e0",
+            borderRadius: 14,
+            boxShadow: "0 2px 16px #e0e0e0",
             background: "#fff",
-            marginTop: 8
+            marginTop: 12
           }}>
             <table style={{
               width: "100%",
               borderCollapse: "separate",
               borderSpacing: 0,
-              borderRadius: 12,
-              overflow: "hidden"
+              borderRadius: 14,
+              overflow: "hidden",
+              fontFamily: "inherit"
             }}>
               <thead>
                 <tr style={{
-                  background: "linear-gradient(90deg, #e3eaf4 60%, #f5f7fa 100%)",
-                  color: "#1953a8"
+                  background: tableHeaderBg,
+                  color: tableHeaderColor,
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 2
                 }}>
                   <th style={{ padding: "14px 10px" }}>Machine</th>
                   <th style={{ padding: "14px 10px" }}>Test</th>
@@ -849,12 +874,11 @@ export default function AdminPanel({ user }) {
                   <tr
                     key={mp.id || mp._id}
                     style={{
-                      background: idx % 2 === 0 ? "#f9fbfd" : "#f5f7fa",
-                      transition: "background 0.2s",
-                      borderRadius: 8
+                      background: idx % 2 === 0 ? tableRowEven : tableRowOdd,
+                      transition: "background 0.2s"
                     }}
-                    onMouseOver={e => e.currentTarget.style.background = "#e8f0fe"}
-                    onMouseOut={e => e.currentTarget.style.background = idx % 2 === 0 ? "#f9fbfd" : "#f5f7fa"}
+                    onMouseOver={e => e.currentTarget.style.background = tableRowHover}
+                    onMouseOut={e => e.currentTarget.style.background = idx % 2 === 0 ? tableRowEven : tableRowOdd}
                   >
                     {editParamId === (mp.id || mp._id) ? (
                       <>
