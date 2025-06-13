@@ -8,6 +8,7 @@ export default function SampleCollectionList() {
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [testMaster, setTestMaster] = useState({}); // { testId: testName }
   useEffect(() => {
     fetchPending();
     // eslint-disable-next-line
@@ -17,6 +18,7 @@ export default function SampleCollectionList() {
     setLoading(true);
     try {
       const res = await api.get("/samples/pending");
+      console.log("SampleCollectionList - pending samples:", res.data);
       setPending(res.data || []);
     } catch (err) {
       setPending([]);
@@ -31,6 +33,36 @@ export default function SampleCollectionList() {
     fetchPending();
   };
 
+  // Fetch test master list and build a map {id: name}
+  useEffect(() => {
+    api.get("/tests-master")
+      .then(res => {
+
+        
+        // Map as array of { testId, testName }
+        const mapped = (res.data || []).map(t => ({
+          
+          testId: t.id,
+          testName: t.testName
+        
+        
+        }
+      )
+      
+      
+      );
+
+         // If you still want the map for fast lookup:
+        const map = {};
+        mapped.forEach(t => { map[String(t.testId)] = t.testName; }
+      
+      
+      );
+        setTestMaster(map); // <-- set the map, not the array!
+        
+      })
+      .catch(() => setTestMaster({}));
+  }, []);
   return (
     <div className="lims-card-modern">
       <h2 className="lims-title">Pending Sample Collections</h2>
@@ -65,14 +97,25 @@ export default function SampleCollectionList() {
                     {sample.patient.firstName} ({sample.patient.mrn})
                   </td>
                   <td>{sample.sampleNumber}</td>
-                  <td>{sample.testName}</td>
                   <td>
-                    <button
-                      className="lims-collect-btn"
-                      onClick={() => handleCollect(sample)}
-                    >
-                      <span role="img" aria-label="collect">🧪</span> Collect
-                    </button>
+                    {String(sample.testName)
+                      .split(",")
+                      .map(id => testMaster[String(id.trim())] || id)
+                      .join(", ")}
+                  </td>
+                  <td>
+                    {sample.billed ? (
+                      <button
+                        className="lims-collect-btn"
+                        onClick={() => handleCollect(sample)}
+                      >
+                        <span role="img" aria-label="collect">🧪</span> Collect
+                      </button>
+                    ) : (
+                      <span style={{ color: "#c00", fontWeight: 500 }}>
+                        Billing not done yet
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))}

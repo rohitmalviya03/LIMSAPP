@@ -30,6 +30,10 @@ import TestRaisedDetails from './components/TestRaised/TestRaisedDetails';
 import SampleCollectionList from './components/SampleCollection/SampleCollectionList';
 import CollectedSamplesList from "./components/SampleCollection/CollectedSamplesList";
 import ResultEntry from './components/ResultEntry/ResultEntry';
+import ResultEntryList from "./components/ResultEntry/ResultEntryList";
+import ResultValidationPage from './components/ResultEntry/ResultValidationPage';
+import ReportSearchPage from './components/ResultEntry/ReportSearchPage';
+import ReportPage from './components/ResultEntry/ReportPage';
 import './styles/main.css';
 
 function AppContent() {
@@ -98,6 +102,12 @@ function AppContent() {
               <Route path="/tests" element={<TestRaisedList />} />
               <Route path="/tests/add" element={<AddTestRaised />} />
               <Route path="/tests/:id" element={<TestRaisedDetails />} />
+              <Route path="/results/entry" element={<ResultEntryList />} />
+              
+                            <Route path="/results/pending-validation" element={<ResultValidationPage />} />
+              <Route path="/results/report" element={<ReportSearchPage />} />
+              <Route path="/results/report/view" element={<ReportPage />} />
+             
               <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>

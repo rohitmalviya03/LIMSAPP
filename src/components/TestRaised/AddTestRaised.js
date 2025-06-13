@@ -10,7 +10,7 @@ const AddTestRaised = () => {
   const [testOptions, setTestOptions] = useState([]); // Master test list
   const [autocomplete, setAutocomplete] = useState([]); // Suggestions for test search
   const [showAutocomplete, setShowAutocomplete] = useState(false);
-  const [selectedTests, setSelectedTests] = useState([]); // [testName, ...]
+  const [selectedTests, setSelectedTests] = useState([]); // [{id, testName}]
   const [testSearch, setTestSearch] = useState(""); // Test search input
 
   const [notes, setNotes] = useState(""); // single notes for all tests
@@ -44,7 +44,7 @@ const AddTestRaised = () => {
       const filtered = testOptions.filter(
         t =>
           t.testName.toLowerCase().includes(testSearch.toLowerCase()) &&
-          !selectedTests.includes(t.testName)
+          !selectedTests.some(sel => sel.id === t.id)
       );
       setAutocomplete(filtered);
       setShowAutocomplete(filtered.length > 0);
@@ -93,10 +93,10 @@ const AddTestRaised = () => {
   };
 
   // Handler: select test from autocomplete
-  const handleSelectTest = (testName) => {
+  const handleSelectTest = (test) => {
     setSelectedTests([
       ...selectedTests,
-      testName
+      { id: test.id, testName: test.testName }
     ]);
     setTestSearch("");
     setAutocomplete([]);
@@ -141,7 +141,7 @@ const AddTestRaised = () => {
       const res = await api.post("/addtests/bulk", {
         patientId: patient.id,
         testRaisedBy: obj.id,
-        tests: selectedTests.map(testName => ({ testName })), // [{testName}]
+        tests: selectedTests.map(test => ({ testId: test.id })), // [{testId}]
         notes // send notes for all
       });
       setSubmitSuccess("All tests raised successfully!");
@@ -212,7 +212,7 @@ const AddTestRaised = () => {
                 {autocomplete.map(test => (
                   <li
                     key={test.id}
-                    onClick={() => handleSelectTest(test.testName)}
+                    onClick={() => handleSelectTest(test)}
                   >
                     {test.testName}
                   </li>
@@ -226,12 +226,12 @@ const AddTestRaised = () => {
             <div className="lims-selected-tests" style={{ margin: "8px 0 18px 0" }}>
               <label style={{ display: "block", marginBottom: 5, fontWeight: 600 }}>Tests to Raise:</label>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                {selectedTests.map((testName, idx) => (
+                {selectedTests.map((test, idx) => (
                   <span
-                    key={idx}
+                    key={test.id}
                     className="lims-pill"
                   >
-                    {testName}
+                    {test.testName}
                     <button
                       type="button"
                       className="lims-pill-remove"

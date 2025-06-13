@@ -13,6 +13,7 @@ const RaisedTestsList = ({ patientId }) => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const [testMaster, setTestMaster] = useState({}); // { testId: testName }
   // Fetch raised tests for this patient
   useEffect(() => {
     if (!patientId) return;
@@ -75,6 +76,37 @@ const RaisedTestsList = ({ patientId }) => {
     );
   };
 
+ 
+  // Fetch test master list and build a map {id: name}
+  useEffect(() => {
+    api.get("/tests-master")
+      .then(res => {
+
+        
+        // Map as array of { testId, testName }
+        const mapped = (res.data || []).map(t => ({
+          
+          testId: t.id,
+          testName: t.testName
+        
+        
+        }
+      )
+      
+      
+      );
+
+         // If you still want the map for fast lookup:
+        const map = {};
+        mapped.forEach(t => { map[String(t.testId)] = t.testName; }
+      
+      
+      );
+        setTestMaster(map); // <-- set the map, not the array!
+        
+      })
+      .catch(() => setTestMaster({}));
+  }, []);
   if (!patientId) return null;
 
   return (
@@ -132,7 +164,8 @@ const RaisedTestsList = ({ patientId }) => {
                       )}
                     </>
                   ) : (
-                    <span>{test.testName}</span>
+                    
+                      <span>{testMaster[String(test.testName)] || test.testName || test.testId}</span>
                   )}
                 </div>
                 <div className="lims-raised-test-col">

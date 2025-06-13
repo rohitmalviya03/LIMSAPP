@@ -84,12 +84,27 @@ const Sidebar = () => (
       </NavLink>
       <div className="sidebar-section">Results</div>
       <NavLink
-        to="/result-entry"
+        to="/results/entry"
         className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}
         end
       >
         Result Entry
       </NavLink>
+      <NavLink
+        to="/results/pending-validation"
+        className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}
+        end
+      >
+        Result Validation
+      </NavLink>
+      <NavLink
+        to="/results/report"
+        className={({ isActive }) => "sidebar-link" + (isActive ? " active" : "")}
+        end
+      >
+        Reports
+      </NavLink>
+      
     </nav>
   </aside>
 );

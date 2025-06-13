@@ -9,12 +9,58 @@ const TestRaisedList = () => {
   const [tests, setTests] = useState([]);
   const [statusFilter, setStatusFilter] = useState("All");
   const [loading, setLoading] = useState(true);
+  const [testMaster, setTestMaster] = useState({}); // { testId: testName }
+  const [userMaster, setUserMaster] = useState({}); // { userId: userName }
 
   useEffect(() => {
     fetchTests();
     // eslint-disable-next-line
   }, [statusFilter]);
 
+  // Fetch test master list and build a map {id: name}
+  useEffect(() => {
+    api.get("/tests-master")
+      .then(res => {
+
+        
+        // Map as array of { testId, testName }
+        const mapped = (res.data || []).map(t => ({
+          
+          testId: t.id,
+          testName: t.testName
+        
+        
+        }
+      )
+      
+      
+      );
+
+         // If you still want the map for fast lookup:
+        const map = {};
+        mapped.forEach(t => { map[String(t.testId)] = t.testName; }
+      
+      
+      );
+        setTestMaster(map); // <-- set the map, not the array!
+        
+      })
+      .catch(() => setTestMaster({}));
+  }, []);
+
+  // Fetch user master list and build a map {id: name}
+  useEffect(() => {
+    api.get("/auth/users-master") // <-- Your endpoint to get all users
+      .then(res => {
+        const map = {};
+        console.log("TestRaisedList - user master data:", res.data);
+        (res.data || []).forEach(u => { map[String(u.id)] = u.username; });
+        setUserMaster(map);
+      })
+      .catch(() => setUserMaster({}));
+  }, []);
+
+  console.log("TestRaisedList - userMaster:", userMaster);
   const fetchTests = async () => {
     setLoading(true);
     let url = "/teststatus";
@@ -74,7 +120,8 @@ const TestRaisedList = () => {
               <tbody>
                 {tests.map((test, idx) => (
                   <tr key={test._id || test.id} className="fade-in" style={{ animationDelay: `${idx * 40}ms` }}>
-                    <td>{test.testName}</td>
+                    {/* Fetch test name by testId */}
+                    <td>{testMaster[String(test.testName)] || test.testName || test.testId}</td>
                     <td>{test.patientName || (test.patient && test.patient.mrn)}</td>
                     <td>{test.sampleNumber}</td>
                     <td>{test.createdAt ? new Date(test.createdAt).toLocaleString() : ""}</td>
@@ -83,7 +130,8 @@ const TestRaisedList = () => {
                         {test.status}
                       </span>
                     </td>
-                    <td>{test.createdBy}</td>
+                    {/* Fetch user name by createdBy */}
+                    <td>{userMaster[String(test.createdBy)] || test.createdBy}</td>
                     <td>
                       <Link to={`/tests/${test.id || test._id}`} className="details-link-modern">View</Link>
                     </td>

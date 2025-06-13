@@ -4,6 +4,18 @@ import "../../styles/billing.css";
 import BillReceiptModal from "./BillReceiptModal";
 import PreviousBillsModal from "./PreviousBillsModal";
 
+// Add this helper to load Razorpay script if not already loaded
+function loadRazorpayScript() {
+  return new Promise((resolve) => {
+    if (window.Razorpay) return resolve(true);
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
+
 const BillingModule = () => {
   // Core billing states
   const [search, setSearch] = useState("");
@@ -42,10 +54,19 @@ const BillingModule = () => {
 
   // Fetch master list of tests
   useEffect(() => {
-    api.get("/tests-master")
+   const res= api.get("/tests-master")
       .then(res => setTestOptions(res.data || []))
       .catch(() => setTestOptions([]));
-  }, []);
+  
+    }, []);
+
+
+
+  // Helper to get test name by testId
+  const getTestName = (testId) => {
+    const found = testOptions.find(opt => String(opt.id) === String(testId));
+    return found ? found.testName : testId;
+  };
 
   // Search patient by MRN or name
   const handleSearch = async (e) => {
@@ -83,9 +104,15 @@ const BillingModule = () => {
 
   // Helper to get price if not present on test (fallback to master list)
   const getTestPrice = (test) => {
+
+    console.log("getTestPrice called with test:", testOptions);
     if (typeof test.price === "number" && test.price > 0) return test.price;
     if (!testOptions.length) return 0;
-    const found = testOptions.find(opt => opt.testName === test.testName);
+    // Try to match by testId first, then by testName
+    let found = testOptions.find(opt => String(opt.id) === String(test.testName));
+    if (!found && test.testName) {
+      found = testOptions.find(opt => opt.testName === test.testName);
+    }
     return found && found.price ? found.price : 0;
   };
 
@@ -95,7 +122,7 @@ const BillingModule = () => {
     setBillItems([...billItems, {
       type: "test",
       id: test.id,
-      name: test.testName,
+      name: getTestName(test.testId),
       price: getTestPrice(test)
     }]);
   };
@@ -195,6 +222,49 @@ const BillingModule = () => {
     };
   }
 
+  // Add this function inside BillingModule component
+  const handleRazorpayPayment = async () => {
+    if (!bill) return;
+    const res = await api.post("/razorpay/create-order", {
+      amount: total * 100, // Razorpay expects paise
+      currency: "INR",
+      receipt: `bill_${bill.id}`,
+      billId: bill.id
+    });
+    const { orderId, key } = res.data;
+
+    await loadRazorpayScript();
+
+    const options = {
+      key,
+      amount: total * 100,
+      currency: "INR",
+      name: "LIMS Billing",
+      description: `Payment for Bill #${bill.id}`,
+      order_id: orderId,
+      handler: async function (response) {
+        // Send payment details to backend for verification and saving
+        await api.post("/razorpay/verify", {
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_signature: response.razorpay_signature,
+          billId: bill.id
+        });
+        setSubmitStatus("Payment successful!");
+        // Optionally, you can refresh bill/payment status here
+      },
+      prefill: {
+        name: patient?.firstName + " " + patient?.lastName,
+        email: patient?.email,
+        contact: patient?.phone
+      },
+      theme: { color: "#1976d2" }
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
+
   return (
     <div className="lims-billing-container" style={{ maxWidth: 740, margin: "0 auto", padding: "18px 12px" }}>
       <h2 className="lims-title" style={{ textAlign: "center", letterSpacing: "1px", color: "#1953a8" }}>💵 Billing Module</h2>
@@ -245,7 +315,7 @@ const BillingModule = () => {
             <tbody>
               {tests.map(t => (
                 <tr key={t.id}>
-                  <td>{t.testName}</td>
+                  <td>{getTestName(t.testName)}</td>
                   <td>{t.sampleNumber}</td>
                   <td>₹ {getTestPrice(t)}</td>
                   <td>
@@ -393,6 +463,32 @@ const BillingModule = () => {
         total={viewBill ? calcPrevBillSummary(viewBill).amount : 0}
         formatDateTime={formatDateTime}
       />
+
+      {/* Invoicing and Payment Section (newly added) */}
+      {bill && (
+        <div style={{ marginTop: 24, padding: "16px", borderRadius: 8, border: "1px solid #1953a8", background: "#f7f9ff" }}>
+          <h3 style={{ marginBottom: 12, fontSize: 18, color: "#1953a8" }}>Invoice & Payment</h3>
+          <div style={{ marginBottom: 12 }}>
+            <b>Invoice ID:</b> {bill.id}
+          </div>
+          <div style={{ marginBottom: 12 }}>
+            <b>Amount:</b> ₹ {total}
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <b>Status:</b> {bill.paid ? <span style={{ color: "green" }}>Paid</span> : <span style={{ color: "red" }}>Unpaid</span>}
+          </div>
+          {/* Razorpay Pay Now button */}
+          {!bill.paid && (
+            <button
+              className="btn btn-success"
+              style={{ fontSize: 17, padding: "10px 36px" }}
+              onClick={handleRazorpayPayment}
+            >
+              Pay Now
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 };
