@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import api from "../../api/api";
+import api, { getLabcode } from "../../api/api";
 
 export default function ResultEntryDialog({ sample, onClose }) {
   const [results, setResults] = useState({});
@@ -25,8 +25,8 @@ export default function ResultEntryDialog({ sample, onClose }) {
         const dataArr = await Promise.all(
           testIds.map(async testId => {
             const [paramsRes, nameRes] = await Promise.all([
-              api.get(`/masters/machine-test-params?testId=${testId}`),
-              api.get(`/masters/tests/${testId}`)
+              api.get(`/masters/machine-test-params`, { params: { testId, labcode: getLabcode() } }),
+              api.get(`/masters/tests/${testId}`, { params: { labcode: getLabcode() } })
             ]);
             return {
               testId,
@@ -71,10 +71,10 @@ export default function ResultEntryDialog({ sample, onClose }) {
     setError("");
     try {
       await api.post("/results/entry", {
-        sampleId: sample.sampleId,
+        sample,
         results,
-        patId:sample.patientId, // Assuming sample has patientId
-        userId: obj.id // or however you store user info
+        userId: obj.id,
+        labcode: getLabcode(),
       });
       onClose();
     } catch (err) {

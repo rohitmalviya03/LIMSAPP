@@ -2,12 +2,18 @@ import React, { useEffect, useState } from "react";
 import api from "../../api/api";
 import { Link } from "react-router-dom";
 
+const getLabcode = () => {
+  // Fetch hospital/lab code from sessionStorage (set at login)
+  return sessionStorage.getItem("labcode") || "";
+};
+
 const SampleList = () => {
   const [samples, setSamples] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get("/samples")
+    const labcode = getLabcode();
+    api.get(`/samples`, { params: { labcode } })
       .then(res => setSamples(res.data))
       .catch(() => setSamples([]))
       .finally(() => setLoading(false));

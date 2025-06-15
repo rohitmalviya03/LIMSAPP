@@ -22,6 +22,7 @@ import AddPatient from './components/Patients/AddPatient';
 import EditPatient from './components/Patients/EditPatient';
 import PatientDetails from './components/Patients/PatientDetails';
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { LabProvider } from "./context/LabContext";
 
 import TestRaisedList from './components/TestRaised/TestRaisedList';
 import AddTestRaised from './components/TestRaised/AddTestRaised';
@@ -122,9 +123,11 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <LabProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </LabProvider>
     </AuthProvider>
   );
 }

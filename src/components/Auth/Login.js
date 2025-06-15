@@ -10,19 +10,22 @@ const Login = ({ setUser }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const HARDCODED_HOSPCODE = "96101"; // Change as needed for your environment
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      const res = await axios.post('http://localhost:8181/api/auth/login', { username, password }, { withCredentials: true });
+      const res = await axios.post('http://localhost:8181/api/auth/login', { username, password, hospcode: HARDCODED_HOSPCODE }, { withCredentials: true });
       setUser(res.data); // Save user info, including role
       localStorage.setItem("user", JSON.stringify(res.data));
-     
+      // Set labcode/hospcode in sessionStorage for use throughout the app
+      sessionStorage.setItem("labcode", HARDCODED_HOSPCODE);
+      console.log("User logged in:", res.data);
       // Role-based redirect
       if (res.data.role === 'admin') {
         navigate('/admin', { replace: true });
       } else {
-      
         // If location.state?.from exists, go there, else dashboard
         const redirectPath = location.state?.from?.pathname || '/dashboard';
         navigate(redirectPath, { replace: true });

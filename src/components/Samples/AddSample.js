@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import api from "../../api/api";
+import api, { getLabcode } from "../../api/api";
 import { useNavigate } from "react-router-dom";
 import "../../styles/AddSample.css"; // Create this CSS file for styles
 
@@ -18,7 +18,8 @@ const AddSample = () => {
         sampleCode,
         description,
         collectedAt,
-        status
+        status,
+        labcode: getLabcode(),
       });
       navigate("/samples");
     } catch (err) {
@@ -36,7 +37,7 @@ const AddSample = () => {
             <label>Sample Code</label>
             <input
               value={sampleCode}
-              onChange={e => setSampleCode(e.target.value)}
+              onChange={(e) => setSampleCode(e.target.value)}
               required
               className="sample-form-input"
               placeholder="Enter sample code"
@@ -46,7 +47,7 @@ const AddSample = () => {
             <label>Description</label>
             <input
               value={description}
-              onChange={e => setDescription(e.target.value)}
+              onChange={(e) => setDescription(e.target.value)}
               required
               className="sample-form-input"
               placeholder="Enter description"
@@ -57,7 +58,7 @@ const AddSample = () => {
             <input
               type="datetime-local"
               value={collectedAt}
-              onChange={e => setCollectedAt(e.target.value)}
+              onChange={(e) => setCollectedAt(e.target.value)}
               required
               className="sample-form-input"
             />
@@ -66,7 +67,7 @@ const AddSample = () => {
             <label>Status</label>
             <select
               value={status}
-              onChange={e => setStatus(e.target.value)}
+              onChange={(e) => setStatus(e.target.value)}
               className="sample-form-input"
             >
               <option>Received</option>

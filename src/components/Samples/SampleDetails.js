@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api from "../../api/api";
+import api, { getLabcode } from "../../api/api";
 import { useParams, useNavigate } from "react-router-dom";
 
 const SampleDetails = () => {
@@ -9,7 +9,7 @@ const SampleDetails = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get(`/samples/${id}`)
+    api.get(`/samples/${id}`, { params: { labcode: getLabcode() } })
       .then(res => setSample(res.data))
       .catch(() => setSample(null))
       .finally(() => setLoading(false));
