@@ -73,6 +73,7 @@ export default function ResultEntryDialog({ sample, onClose }) {
       await api.post("/results/entry", {
         sampleId: sample.sampleId,
         results,
+        patId:sample.patientId, // Assuming sample has patientId
         userId: obj.id // or however you store user info
       });
       onClose();

@@ -15,11 +15,11 @@ const Navbar = () => {
   return (
     <header className="modern-navbar themed-navbar">
       <div className="navbar-left" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
-        <span className="lims-logo" role="img" aria-label="Lab" style={{ fontSize: 32, marginRight: 10 }}>
+        {/* <span className="lims-logo" role="img" aria-label="Lab" style={{ fontSize: 32, marginRight: 10 }}>
           🧪
-        </span>
-        <span className="lims-titles" style={{ fontWeight: 700, fontSize: 21, letterSpacing: "1px" }}>
-          LIMS Application
+        </span> */}
+            <span className="lims-titles" style={{ fontWeight: 700, fontSize: 21, letterSpacing: "1px" }}>
+          LabNexa - LIMS
         </span>
       </div>
       <nav className="navbar-links">

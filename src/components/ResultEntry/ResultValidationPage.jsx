@@ -8,6 +8,7 @@ export default function ResultValidationPage() {
   const [actionLoading, setActionLoading] = useState({});
   const [userMap, setUserMap] = useState({}); // { userId: userName }
   const [search, setSearch] = useState({ mrn: "", sampleId: "" });
+  const [testMaster, setTestMaster] = useState({});
 
   useEffect(() => {
     fetchPending();
@@ -20,25 +21,35 @@ export default function ResultValidationPage() {
     // eslint-disable-next-line
   }, []);
 
+  useEffect(() => {
+    api.get("/tests-master").then(res => {
+      const map = {};
+      (res.data || []).forEach(t => { map[String(t.id)] = t.testName; });
+      setTestMaster(map);
+      console.log("Test master fetched:", res.data );
+    });
+  }, []);
+
   const fetchPending = async () => {
     setLoading(true);
     setError("");
     try {
       const res = await api.get("/results/pending-validation");
       setPendingResults(res.data);
+      console.log("Pending results fetched:", res.data);
     } catch (err) {
       setError("Failed to load pending results.");
     }
     setLoading(false);
   };
-const userStr = localStorage.getItem("user") || '{"id":"rohitmalviya03"}';
+  const userStr = localStorage.getItem("user") || '{"id":"rohitmalviya03"}';
   let obj = {};
   try {
     obj = JSON.parse(userStr);
   } catch (err) {
     obj = { id: "rohitmalviya03" };
   }
-  const handleValidate = async (resultId, status) => {
+  const handleValidate = async (resultId, status, sampleId) => {
     setActionLoading(a => ({ ...a, [resultId]: true }));
    
     try {
@@ -46,7 +57,7 @@ const userStr = localStorage.getItem("user") || '{"id":"rohitmalviya03"}';
         resultId,
         status,
         doctorId: obj.id,
-       
+        sampleId
       });
       setPendingResults(results => results.filter(r => r.id !== resultId));
     } catch (err) {
@@ -116,8 +127,8 @@ const userStr = localStorage.getItem("user") || '{"id":"rohitmalviya03"}';
                   }}
                 >
                   <td style={{ padding: 10 }}>{r.sampleId}</td>
-                  <td style={{ padding: 10 }}>{r.patientMrn || "-"}</td>
-                  <td style={{ padding: 10 }}>{r.testName}</td>
+                  <td style={{ padding: 10 }}>{r.patMrn || "-"}</td>
+                  <td style={{ padding: 10 }}>{testMaster[r.testId] || r.testName || r.testId}</td>
                   <td style={{ padding: 10 }}>{r.parameter || "-"}</td>
                   <td style={{ padding: 10 }}>{r.value}</td>
                   <td style={{ padding: 10 }}>
@@ -128,14 +139,14 @@ const userStr = localStorage.getItem("user") || '{"id":"rohitmalviya03"}';
                     <button
                       style={{ background: "#43a047", color: "#fff", border: "none", borderRadius: 5, padding: "6px 16px", marginRight: 8, cursor: "pointer" }}
                       disabled={actionLoading[r.id]}
-                      onClick={() => handleValidate(r.id, "approved")}
+                      onClick={() => handleValidate(r.id, "approved", r.sampleId)}
                     >
                       Approve
                     </button>
                     <button
                       style={{ background: "#e53935", color: "#fff", border: "none", borderRadius: 5, padding: "6px 16px", cursor: "pointer" }}
                       disabled={actionLoading[r.id]}
-                      onClick={() => handleValidate(r.id, "rejected")}
+                      onClick={() => handleValidate(r.id, "rejected", r.sampleId)}
                     >
                       Reject
                     </button>

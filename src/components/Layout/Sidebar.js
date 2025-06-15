@@ -6,8 +6,7 @@ import "../../styles/sidebar.css";
 const Sidebar = () => (
   <aside className="custom-sidebar">
     <div className="sidebar-brand">
-      <span className="lims-logo">🧪</span>
-      <span className="lims-sidebar-title">LIMS</span>
+      <span className="lims-sidebar-title">LabNexa</span>
     </div>
     <nav className="sidebar-nav">
       <NavLink
