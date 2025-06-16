@@ -36,7 +36,8 @@ import ResultValidationPage from './components/ResultEntry/ResultValidationPage'
 import ReportSearchPage from './components/ResultEntry/ReportSearchPage';
 import ReportPage from './components/ResultEntry/ReportPage';
 import './styles/main.css';
-
+import LabRegistrationForm from './components/LabMaster/LabRegistrationForm';
+import LabAdminDashboard from './components/LabMaster/LabAdminDashboard';
 function AppContent() {
   const { user, setUser } = useAuth();
 
@@ -60,6 +61,18 @@ function AppContent() {
         <Routes>
           <Route path="/admin" element={<AdminPanel user={user} />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
+        </Routes>
+      </>
+    );
+  }
+
+   if (user.role === 'labmaster') {
+    return (
+      <>
+        <Navbar />
+        <Routes>
+              <Route path="/labmaster/add" element={<LabRegistrationForm />} />
+                <Route path="*" element={<Navigate to="/labmaster/add" replace />} />
         </Routes>
       </>
     );
@@ -104,7 +117,9 @@ function AppContent() {
               <Route path="/tests/add" element={<AddTestRaised />} />
               <Route path="/tests/:id" element={<TestRaisedDetails />} />
               <Route path="/results/entry" element={<ResultEntryList />} />
-              
+        
+     <Route path="/labadmin/dashboard" element={<LabAdminDashboard />} />
+  
               
                             <Route path="/results/pending-validation" element={<ResultValidationPage />} />
               <Route path="/results/report" element={<ReportSearchPage />} />
