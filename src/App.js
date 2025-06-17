@@ -54,7 +54,7 @@ function AppContent() {
   }
 
   // Admin: only show Navbar and AdminPanel, restrict all other routes
-  if (user.role === 'admin') {
+  if (user.role === 'lab') {
     return (
       <>
         <Navbar />
@@ -77,6 +77,20 @@ function AppContent() {
       </>
     );
   }
+
+ if (user.role === 'labss') {
+    return (
+      <>
+        <Navbar />
+        <Routes>
+             <Route path="/labadmin/dashboard" element={<LabAdminDashboard />} />
+                <Route path="*" element={<Navigate to="/labadmin/dashboard" replace />} />
+        </Routes>
+      </>
+    );
+  }
+ 
+  
 
   // // Result Entry role (or any role with access)
   // if (user.role === 'resultentry' || user.role === 'lab' || user.role === 'admin') {
@@ -118,8 +132,7 @@ function AppContent() {
               <Route path="/tests/:id" element={<TestRaisedDetails />} />
               <Route path="/results/entry" element={<ResultEntryList />} />
         
-     <Route path="/labadmin/dashboard" element={<LabAdminDashboard />} />
-  
+    
               
                             <Route path="/results/pending-validation" element={<ResultValidationPage />} />
               <Route path="/results/report" element={<ReportSearchPage />} />

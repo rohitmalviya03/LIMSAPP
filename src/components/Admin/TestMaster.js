@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   FaTrashAlt, FaPlus, FaTimes, FaVial, FaRupeeSign, FaFlask, FaEdit, FaSave, FaBan
 } from "react-icons/fa";
+import { useAuth } from "../../context/AuthContext";
 import api from "../../api/api";
 
 const cardStyle = {
@@ -55,6 +56,7 @@ export default function TestMaster() {
   const [editTestPrice, setEditTestPrice] = useState("");
   const [editTestSampleType, setEditTestSampleType] = useState("");
 
+  const { user, logout } = useAuth();
   useEffect(() => {
     fetchTests();
     fetchSamples();
@@ -75,10 +77,13 @@ export default function TestMaster() {
       return;
     }
     try {
+
+      console.log("user :"+user.username);
       await api.post("/masters/tests", {
         testName: newTest.trim(),
         price: parseFloat(newTestPrice),
-        sampleType: newTestSampleType
+        sampleType: newTestSampleType,
+        labcode: user.username
       });
       setNewTest(""); setNewTestPrice(""); setNewTestSampleType("");
       setAlert({ show: true, type: "success", msg: "Test added!" });

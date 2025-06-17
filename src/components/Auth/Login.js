@@ -112,7 +112,7 @@ const Login = ({ setUser }) => {
       sessionStorage.setItem("labcode", HARDCODED_HOSPCODE);
       console.log("User logged in:", res.data);
       // Role-based redirect
-       if (form.userType === 'lab') {
+       if (res.data.role === 'lab') {
         navigate('/labadmin/dashboard');
       } 
       else if (res.data.role === 'admin') {
