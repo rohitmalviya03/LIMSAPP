@@ -48,6 +48,8 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Login setUser={setUser} />} />
           <Route path="*" element={<Navigate to="/" replace />} />
+
+           <Route path="/labmaster/add" element={<LabRegistrationForm />} />
         </Routes>
       </div>
     );
@@ -66,10 +68,10 @@ function AppContent() {
     );
   }
 
-   if (user.role === 'labmaster') {
+   if (user.role === '') {
     return (
       <>
-        <Navbar />
+     
         <Routes>
               <Route path="/labmaster/add" element={<LabRegistrationForm />} />
                 <Route path="*" element={<Navigate to="/labmaster/add" replace />} />
@@ -132,8 +134,7 @@ function AppContent() {
               <Route path="/tests/:id" element={<TestRaisedDetails />} />
               <Route path="/results/entry" element={<ResultEntryList />} />
         
-    
-              
+             <Route path="/labmaster/add" element={<LabRegistrationForm />} />
                             <Route path="/results/pending-validation" element={<ResultValidationPage />} />
               <Route path="/results/report" element={<ReportSearchPage />} />
               <Route path="/results/report/view" element={<ReportPage />} />

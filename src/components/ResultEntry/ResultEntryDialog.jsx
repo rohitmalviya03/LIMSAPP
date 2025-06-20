@@ -8,6 +8,7 @@ export default function ResultEntryDialog({ sample, onClose }) {
   const [testNames, setTestNames] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [message, setMessage] = useState(""); // For success message
 
   const userStr = localStorage.getItem("user") || '{"id":"rohitmalviya03"}';
   let obj = {};
@@ -74,9 +75,13 @@ export default function ResultEntryDialog({ sample, onClose }) {
         sample,
         results,
         userId: obj.id,
-        labcode: getLabcode(),
+        // labcode: getLabcode(),
       });
-      onClose();
+      setMessage(`Result is saved for the sample number ${sample.sampleId}`);
+      setTimeout(() => {
+        setMessage("");
+        onClose();
+      }, 2000); // Show message for 2 seconds before closing
     } catch (err) {
       setError("Failed to save results.");
     }
@@ -185,6 +190,11 @@ export default function ResultEntryDialog({ sample, onClose }) {
             </table>
           )}
         </div>
+        {message && (
+          <div style={{ color: "green", marginBottom: 16, textAlign: "center" }}>
+            {message}
+          </div>
+        )}
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
           <button
             className="btn btn-primary"

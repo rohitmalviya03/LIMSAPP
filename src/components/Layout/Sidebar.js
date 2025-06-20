@@ -29,7 +29,7 @@ const Sidebar = () => {
   return (
     <aside className="custom-sidebar">
       <div className="sidebar-brand">
-        <span className="lims-sidebar-title">LabNexa</span>
+        {/* <span className="lims-sidebar-title">LabNexa</span> */}
       </div>
       <div className="lab-context-section">
         <label htmlFor="lab-select" className="lab-select-label">Lab:</label>

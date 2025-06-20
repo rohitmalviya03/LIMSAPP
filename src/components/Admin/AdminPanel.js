@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { FaTrashAlt, FaPlus, FaTimes } from "react-icons/fa";
 import api from "../../api/api";
 import TestGroupMaster from './TestGroupMaster';
+import AdminUserMaster from './AdminUserMaster'; // The user master component from earlier
 
 const TABS = [
   { key: "test", label: "Test Master" },
   { key: "sample", label: "Sample Master" },
   { key: "machine", label: "Machine Master" },
   { key: "machineparam", label: "Machine Parameter Test Master" },
-  { key: "testgroup", label: "Test Group Master" }
+  { key: "testgroup", label: "Test Group Master" },
+    { key: "userMaster", label: "User Master" }
 ];
 
 const cardStyle = {
@@ -54,6 +56,27 @@ const deleteBtnStyle = {
   cursor: "pointer",
   fontSize: 18,
   marginLeft: 8
+};
+
+const styles = {
+  tabBar: {
+    display: 'flex',
+    borderBottom: '2px solid #1976d2',
+    marginBottom: 24,
+    background: '#f5f5f5',
+    borderRadius: '8px 8px 0 0',
+    overflow: 'hidden',
+  },
+  tab: isActive => ({
+    padding: '12px 32px',
+    cursor: 'pointer',
+    background: isActive ? '#1976d2' : 'transparent',
+    color: isActive ? '#fff' : '#1976d2',
+    fontWeight: 600,
+    border: 'none',
+    outline: 'none',
+    transition: 'background 0.2s',
+  }),
 };
 
 export default function AdminPanel({ user }) {
@@ -1011,6 +1034,9 @@ export default function AdminPanel({ user }) {
         {activeTab === "testgroup" && (
           <TestGroupMaster />
         )}
+
+        {/* User Master - New Tab */}
+        {activeTab === "userMaster" && <AdminUserMaster />}
       </div>
     </div>
   );

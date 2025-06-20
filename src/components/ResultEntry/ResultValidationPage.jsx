@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import api from "../../api/api";
 
+import api, { getLabcode } from "../../api/api";
 export default function ResultValidationPage() {
   const [pendingResults, setPendingResults] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,7 +13,7 @@ export default function ResultValidationPage() {
   useEffect(() => {
     fetchPending();
     // Fetch user master for name lookup
-    api.get("auth/users-master").then(res => {
+    api.get("auth/users-master/899").then(res => {
       const map = {};
       (res.data || []).forEach(u => { map[u.id] = u.username; });
       setUserMap(map);
