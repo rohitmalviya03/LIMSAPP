@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import api from "../../api/api";
 import { useNavigate } from "react-router-dom";
 
-const AddPatient = () => {
+const AddPatient = ({ labcode }) => {
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -21,12 +21,18 @@ const AddPatient = () => {
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
+  const userStr = localStorage.getItem("user") || '{"id":"rohitmalviya03"}';
+  let obj = {};
+  try {
+    obj = JSON.parse(userStr);
+  } catch (err) {
+    obj = { id: "rohitmalviya03" };
+  }
   const handleSubmit = async e => {
     e.preventDefault();
     setError("");
     try {
-      await api.post("/patients", form);
+      await api.post("/patients", { ...form, labcode:obj.labCode });
       navigate("/patients");
     } catch {
       setError("Could not register patient. Please check form and try again.");

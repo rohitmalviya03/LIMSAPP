@@ -11,17 +11,22 @@ const cardStyle = {
   boxShadow: "0 4px 24px #1976d230",
   padding: 32,
   marginBottom: 32,
-  marginTop: 12
+  marginTop: 24,
+  maxWidth: 900,
+  marginLeft: "auto",
+  marginRight: "auto"
 };
 const inputStyle = {
-  padding: "10px 14px",
+  padding: "12px 16px",
   borderRadius: 8,
   border: "1.5px solid #b0b8c1",
   fontSize: "1rem",
-  background: "#fafdff"
+  background: "#fafdff",
+  marginRight: 8,
+  minWidth: 120
 };
 const buttonStyle = {
-  padding: "9px 20px",
+  padding: "10px 24px",
   background: "linear-gradient(90deg, #1976d2 60%, #42a5f5 100%)",
   color: "#fff",
   border: "none",
@@ -32,7 +37,8 @@ const buttonStyle = {
   gap: 8,
   cursor: "pointer",
   fontSize: 15,
-  boxShadow: "0 2px 8px #1976d220"
+  boxShadow: "0 2px 8px #1976d220",
+  transition: "background 0.2s, box-shadow 0.2s"
 };
 const deleteBtnStyle = {
   background: "none",
@@ -40,7 +46,8 @@ const deleteBtnStyle = {
   color: "#e74c3c",
   cursor: "pointer",
   fontSize: 20,
-  marginLeft: 10
+  marginLeft: 10,
+  transition: "color 0.2s"
 };
 
 export default function TestMaster() {
@@ -58,6 +65,9 @@ export default function TestMaster() {
 
   const { user, logout } = useAuth();
   useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+
+    console.log("TestMaster - user:", storedUser);
     fetchTests();
     fetchSamples();
   }, []);
@@ -76,14 +86,13 @@ export default function TestMaster() {
       setAlert({ show: true, type: "error", msg: "All fields required." });
       return;
     }
+    console.log("user :"+user);
     try {
-
-      console.log("user :"+user.username);
       await api.post("/masters/tests", {
         testName: newTest.trim(),
         price: parseFloat(newTestPrice),
         sampleType: newTestSampleType,
-        labcode: user.username
+        labcode: user.username // Add labcode
       });
       setNewTest(""); setNewTestPrice(""); setNewTestSampleType("");
       setAlert({ show: true, type: "success", msg: "Test added!" });
@@ -118,11 +127,14 @@ export default function TestMaster() {
       return;
     }
     try {
-      await api.put(`/masters/tests/${id}`, {
-        testName: editTestName.trim(),
-        price: parseFloat(editTestPrice),
-        sampleType: editTestSampleType
-      });
+      await api.put(`/masters/tests/${id}`,
+        {
+          testName: editTestName.trim(),
+          price: parseFloat(editTestPrice),
+          sampleType: editTestSampleType,
+          labcode: user.username // Add labcode
+        }
+      );
       setAlert({ show: true, type: "success", msg: "Test updated!" });
       cancelEditTest();
       fetchTests();
@@ -166,10 +178,11 @@ export default function TestMaster() {
       )}
       <div style={{
         display: "flex",
-        gap: 14,
+        gap: 18,
         marginBottom: 26,
         flexWrap: "wrap",
-        alignItems: "center"
+        alignItems: "center",
+        justifyContent: "center"
       }}>
         <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <FaVial style={{ color: "#1976d2" }} />
@@ -188,7 +201,7 @@ export default function TestMaster() {
             ))}
           </select>
         </span>
-        <button onClick={addTest} style={buttonStyle}><FaPlus /> Add</button>
+        <button onClick={addTest} style={{ ...buttonStyle, minWidth: 100 }} onMouseOver={e => e.currentTarget.style.background = '#1565c0'} onMouseOut={e => e.currentTarget.style.background = 'linear-gradient(90deg, #1976d2 60%, #42a5f5 100%)'}><FaPlus /> Add</button>
       </div>
       <div style={{
         overflowX: "auto",
@@ -211,7 +224,8 @@ export default function TestMaster() {
               color: "#1953a8",
               position: "sticky",
               top: 0,
-              zIndex: 2
+              zIndex: 2,
+              fontSize: 17
             }}>
               <th style={{ padding: "16px 12px" }}><FaVial style={{ verticalAlign: "middle" }} /> Test Name</th>
               <th style={{ padding: "16px 12px" }}><FaRupeeSign style={{ verticalAlign: "middle" }} /> Price</th>

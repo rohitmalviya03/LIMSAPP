@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy } from 'react';
 import { FaTrashAlt, FaPlus, FaTimes } from "react-icons/fa";
 import api from "../../api/api";
 import TestGroupMaster from './TestGroupMaster';
@@ -92,6 +92,7 @@ export default function AdminPanel({ user }) {
   const [newMachine, setNewMachine] = useState("");
   const [newParam, setNewParam] = useState({ machineId: "", testId: "", parameter: "" });
   const [alert, setAlert] = useState({ show: false, type: "success", msg: "" });
+  const [backendError, setBackendError] = useState(false);
 
   // Edit states for all masters
   const [editTestId, setEditTestId] = useState(null);
@@ -128,20 +129,41 @@ export default function AdminPanel({ user }) {
 
   // Fetch functions
   const fetchTests = async () => {
-    const res = await api.get("/masters/tests");
-    setTests(res.data);
+    try {
+      const res = await api.get("/masters/tests", { params: { labcode: user.username } });
+      setTests(Array.isArray(res.data) ? res.data : []);
+      setBackendError(false);
+    } catch (err) {
+      setTests([]); // Ensure tests is always an array
+      setBackendError(true);
+    }
   };
   const fetchSamples = async () => {
-    const res = await api.get("/masters/samples");
-    setSamples(res.data);
+    try {
+      const res = await api.get("/masters/samples", { params: { labcode: user.username } });
+      setSamples(res.data);
+      setBackendError(false);
+    } catch (err) {
+      setBackendError(true);
+    }
   };
   const fetchMachines = async () => {
-    const res = await api.get("/masters/machines");
-    setMachines(res.data);
+    try {
+      const res = await api.get("/masters/machines", { params: { labcode: user.username } });
+      setMachines(res.data);
+      setBackendError(false);
+    } catch (err) {
+      setBackendError(true);
+    }
   };
   const fetchMachineParams = async () => {
-    const res = await api.get("/masters/machine-params");
-    setMachineParams(res.data);
+    try {
+      const res = await api.get("/masters/machine-params", { params: { labcode: user.username } });
+      setMachineParams(res.data);
+      setBackendError(false);
+    } catch (err) {
+      setBackendError(true);
+    }
   };
 
   // Add handlers with validation
@@ -162,7 +184,8 @@ export default function AdminPanel({ user }) {
       await api.post("/masters/tests", {
         testName: newTest.trim(),
         price: parseFloat(newTestPrice),
-        sampleType: newTestSampleType
+        sampleType: newTestSampleType,
+        labcode: user.username
       });
       setNewTest("");
       setNewTestPrice("");
@@ -170,11 +193,17 @@ export default function AdminPanel({ user }) {
       setAlert({ show: true, type: "success", msg: "Test added successfully!" });
       fetchTests();
     } catch (err) {
-      setAlert({
-        show: true,
-        type: "error",
-        msg: "Something went wrong, please try again."
-      });
+      // Use err.response?.status for axios, fallback to err.status for fetch
+      const status = err.response?.status || err.status;
+      if (status === 409) {
+        setAlert({ show: true, type: "error", msg: "Test with this name and sample type already exists." });
+      } else {
+        setAlert({
+          show: true,
+          type: "error",
+          msg: "Something went wrong, please try again."
+        });
+      }
     }
   };
 
@@ -184,7 +213,7 @@ export default function AdminPanel({ user }) {
       return;
     }
     try {
-      await api.post("/masters/samples", { type: newSample.trim() });
+      await api.post("/masters/samples", { type: newSample.trim(), labcode: user.username });
       setNewSample("");
       setAlert({ show: true, type: "success", msg: "Sample type added successfully!" });
       fetchSamples();
@@ -203,7 +232,7 @@ export default function AdminPanel({ user }) {
       return;
     }
     try {
-      await api.post("/masters/machines", { name: newMachine.trim() });
+      await api.post("/masters/machines", { name: newMachine.trim(), labcode: user.username });
       setNewMachine("");
       setAlert({ show: true, type: "success", msg: "Machine added successfully!" });
       fetchMachines();
@@ -233,7 +262,8 @@ export default function AdminPanel({ user }) {
       await api.post("/masters/machine-params", {
         machine: { id: newParam.machineId },
         test: { id: newParam.testId },
-        parameter: newParam.parameter.trim()
+        parameter: newParam.parameter.trim(),
+        labcode: user.username
       });
       setNewParam({ machineId: "", testId: "", parameter: "" });
       setAlert({ show: true, type: "success", msg: "Machine parameter added successfully!" });
@@ -377,7 +407,7 @@ export default function AdminPanel({ user }) {
       return;
     }
     try {
-      await api.put(`/masters/samples/${id}`, { type: editSampleType.trim() });
+      await api.put(`/masters/samples/${id}`, { type: editSampleType.trim(), labcode: user.username });
       setAlert({ show: true, type: "success", msg: "Sample updated successfully!" });
       setEditSampleId(null);
       setEditSampleType("");
@@ -407,7 +437,7 @@ export default function AdminPanel({ user }) {
       return;
     }
     try {
-      await api.put(`/masters/machines/${id}`, { name: editMachineName.trim() });
+      await api.put(`/masters/machines/${id}`, { name: editMachineName.trim(), labcode: user.username });
       setAlert({ show: true, type: "success", msg: "Machine updated successfully!" });
       setEditMachineId(null);
       setEditMachineName("");
@@ -449,11 +479,14 @@ export default function AdminPanel({ user }) {
       return;
     }
     try {
-      await api.put(`/masters/machine-params/${id}`, {
-        machine: { id: editParamMachineId },
-        test: { id: editParamTestId },
-        parameter: editParamName.trim()
-      });
+      await api.put(`/masters/machine-params/${id}`,
+        {
+          machine: { id: editParamMachineId },
+          test: { id: editParamTestId },
+          parameter: editParamName.trim(),
+          labcode: user.username
+        }
+      );
       setAlert({ show: true, type: "success", msg: "Machine parameter updated successfully!" });
       setEditParamId(null);
       setEditParamMachineId("");
@@ -472,6 +505,15 @@ export default function AdminPanel({ user }) {
   // Dismiss alert
   const dismissAlert = () => setAlert({ ...alert, show: false });
 
+  // Auto-dismiss alert after 7 seconds
+  useEffect(() => {
+    if (!alert.show) return;
+    const timer = setTimeout(() => {
+      setAlert(a => ({ ...a, show: false }));
+    }, 5000); // 7 seconds
+    return () => clearTimeout(timer);
+  }, [alert.show]);
+
   // Theme variables
   const tableHeaderBg = "#f4f7fb";
   const tableHeaderColor = "#1953a8";
@@ -479,6 +521,30 @@ export default function AdminPanel({ user }) {
   const tableRowOdd = "#f5f7fa";
   const tableRowHover = "#e3f0ff";
   const actionBtnGap = 10;
+
+  // Auto-retry backend check and refresh data when backendError is true
+  useEffect(() => {
+    if (!backendError) return;
+    const interval = setInterval(() => {
+      // Try a lightweight fetch to check backend status
+      fetchTests().then(() => {
+        // If successful, refresh all data for the current tab
+        if (activeTab === "test") {
+          fetchTests();
+          fetchSamples();
+        } else if (activeTab === "sample") {
+          fetchSamples();
+        } else if (activeTab === "machine") {
+          fetchMachines();
+        } else if (activeTab === "machineparam") {
+          fetchMachines();
+          fetchTests();
+          fetchMachineParams();
+        }
+      });
+    }, 5000); // Retry every 5 seconds
+    return () => clearInterval(interval);
+  }, [backendError, activeTab]);
 
   return (
     <div style={{
@@ -508,6 +574,62 @@ export default function AdminPanel({ user }) {
         }}>
           Welcome, {user?.username}!
         </div>
+        {/* Alert Message */}
+        {alert.show && (
+          <div
+            style={{
+              marginBottom: 18,
+              padding: "12px 18px 12px 16px",
+              borderRadius: 8,
+              background: alert.type === "success" ? "#e8f5e9" : "#ffebee",
+              color: alert.type === "success" ? "#256029" : "#b71c1c",
+              border: `1.5px solid ${alert.type === "success" ? "#43a047" : "#e53935"}`,
+              fontWeight: 600,
+              fontSize: 15.5,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              boxShadow: "0 1px 6px #0001"
+            }}
+            role="alert"
+          >
+            <span>{alert.msg}</span>
+            <button
+              onClick={dismissAlert}
+              style={{
+                background: "none",
+                border: "none",
+                color: alert.type === "success" ? "#256029" : "#b71c1c",
+                fontWeight: 900,
+                fontSize: 18,
+                marginLeft: 18,
+                cursor: "pointer"
+              }}
+              aria-label="Dismiss alert"
+            >
+              <FaTimes />
+            </button>
+          </div>
+        )}
+
+        {/* Backend Error Banner */}
+        {backendError && (
+          <div style={{
+            background: '#ffebee',
+            color: '#b71c1c',
+            border: '1.5px solid #e53935',
+            borderRadius: 8,
+            padding: '12px 18px',
+            marginBottom: 18,
+            fontWeight: 700,
+            fontSize: 16,
+            textAlign: 'center',
+            boxShadow: '0 1px 6px #0001'
+          }}>
+            Cannot connect to backend server. Please check your network or try again later.
+          </div>
+        )}
+
         <div style={{
           display: "flex",
           gap: 10,
@@ -552,9 +674,15 @@ export default function AdminPanel({ user }) {
               flexWrap: "wrap",
               alignItems: "center"
             }}>
-              <input value={newTest} onChange={handleInputChange(setNewTest)} placeholder="Test Name" style={inputStyle} />
-              <input type="number" min="0" step="0.01" value={newTestPrice} onChange={handleInputChange(setNewTestPrice)} placeholder="Price" style={inputStyle} />
-              <select value={newTestSampleType} onChange={handleInputChange(setNewTestSampleType)} style={inputStyle}>
+              <input value={newTest} onChange={handleInputChange(setNewTest)} placeholder="Test Name" style={inputStyle}
+                onKeyDown={e => { if (e.key === "Enter") addTest(); }}
+              />
+              <input type="number" min="0" step="0.01" value={newTestPrice} onChange={handleInputChange(setNewTestPrice)} placeholder="Price" style={inputStyle}
+                onKeyDown={e => { if (e.key === "Enter") addTest(); }}
+              />
+              <select value={newTestSampleType} onChange={handleInputChange(setNewTestSampleType)} style={inputStyle}
+                onKeyDown={e => { if (e.key === "Enter") addTest(); }}
+              >
                 <option value="">Sample Type</option>
                 {samples.map((s) => (
                   <option key={s.id || s._id} value={s.type}>{s.type}</option>
@@ -602,6 +730,7 @@ export default function AdminPanel({ user }) {
                               value={editTestName}
                               onChange={e => setEditTestName(e.target.value)}
                               style={{ ...inputStyle, width: "90%" }}
+                              onKeyDown={e => { if (e.key === "Enter") saveEditTest(t.id || t._id); }}
                             />
                           </td>
                           <td style={{ padding: "12px 10px" }}>
@@ -612,6 +741,7 @@ export default function AdminPanel({ user }) {
                               value={editTestPrice}
                               onChange={e => setEditTestPrice(e.target.value)}
                               style={{ ...inputStyle, width: "90%" }}
+                              onKeyDown={e => { if (e.key === "Enter") saveEditTest(t.id || t._id); }}
                             />
                           </td>
                           <td style={{ padding: "12px 10px" }}>
@@ -619,6 +749,7 @@ export default function AdminPanel({ user }) {
                               value={editTestSampleType}
                               onChange={e => setEditTestSampleType(e.target.value)}
                               style={{ ...inputStyle, width: "90%" }}
+                              onKeyDown={e => { if (e.key === "Enter") saveEditTest(t.id || t._id); }}
                             >
                               <option value="">Select Sample Type</option>
                               {samples.map((s) => (
@@ -687,6 +818,7 @@ export default function AdminPanel({ user }) {
                 onChange={handleInputChange(setNewSample)}
                 placeholder="Sample Type"
                 style={inputStyle}
+                onKeyDown={e => { if (e.key === "Enter") addSample(); }}
               />
               <button onClick={addSample} style={buttonStyle}><FaPlus /> Add</button>
             </div>
@@ -735,6 +867,7 @@ export default function AdminPanel({ user }) {
                               value={editSampleType}
                               onChange={e => setEditSampleType(e.target.value)}
                               style={inputStyle}
+                              onKeyDown={e => { if (e.key === "Enter") saveEditSample(s.id || s._id); }}
                             />
                           </td>
                           <td style={{ padding: 8, display: "flex", gap: 8 }}>
@@ -790,6 +923,7 @@ export default function AdminPanel({ user }) {
                 onChange={handleInputChange(setNewMachine)}
                 placeholder="Machine Name"
                 style={inputStyle}
+                onKeyDown={e => { if (e.key === "Enter") addMachine(); }}
               />
               <button onClick={addMachine} style={buttonStyle}><FaPlus /> Add</button>
             </div>
@@ -838,6 +972,7 @@ export default function AdminPanel({ user }) {
                               value={editMachineName}
                               onChange={e => setEditMachineName(e.target.value)}
                               style={inputStyle}
+                              onKeyDown={e => { if (e.key === "Enter") saveEditMachine(m.id || m._id); }}
                             />
                           </td>
                           <td style={{ padding: 8, display: "flex", gap: 8 }}>
@@ -892,6 +1027,7 @@ export default function AdminPanel({ user }) {
                 value={newParam.machineId}
                 onChange={handleParamChange("machineId")}
                 style={inputStyle}
+                onKeyDown={e => { if (e.key === "Enter") addMachineParam(); }}
               >
                 <option value="">Select Machine</option>
                 {machines.map((m) => <option key={m.id || m._id} value={m.id || m._id}>{m.name}</option>)}
@@ -900,6 +1036,7 @@ export default function AdminPanel({ user }) {
                 value={newParam.testId}
                 onChange={handleParamChange("testId")}
                 style={inputStyle}
+                onKeyDown={e => { if (e.key === "Enter") addMachineParam(); }}
               >
                 <option value="">Select Test</option>
                 {tests.map((t) => <option key={t.id || t._id} value={t.id || t._id}>{t.name || t.testName}</option>)}
@@ -909,6 +1046,7 @@ export default function AdminPanel({ user }) {
                 onChange={handleParamChange("parameter")}
                 placeholder="Parameter Name"
                 style={inputStyle}
+                onKeyDown={e => { if (e.key === "Enter") addMachineParam(); }}
               />
               <button onClick={addMachineParam} style={buttonStyle}><FaPlus /> Add</button>
             </div>
@@ -959,6 +1097,7 @@ export default function AdminPanel({ user }) {
                               value={editParamMachineId}
                               onChange={e => setEditParamMachineId(e.target.value)}
                               style={inputStyle}
+                              onKeyDown={e => { if (e.key === "Enter") saveEditParam(mp.id || mp._id); }}
                             >
                               <option value="">Select Machine</option>
                               {machines.map((m) => (
@@ -971,6 +1110,7 @@ export default function AdminPanel({ user }) {
                               value={editParamTestId}
                               onChange={e => setEditParamTestId(e.target.value)}
                               style={inputStyle}
+                              onKeyDown={e => { if (e.key === "Enter") saveEditParam(mp.id || mp._id); }}
                             >
                               <option value="">Select Test</option>
                               {tests.map((t) => (
@@ -983,6 +1123,7 @@ export default function AdminPanel({ user }) {
                               value={editParamName}
                               onChange={e => setEditParamName(e.target.value)}
                               style={inputStyle}
+                              onKeyDown={e => { if (e.key === "Enter") saveEditParam(mp.id || mp._id); }}
                             />
                           </td>
                           <td style={{ padding: 8, display: "flex", gap: 8 }}>

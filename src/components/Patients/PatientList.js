@@ -8,11 +8,22 @@ const PatientList = () => {
   const [search, setSearch] = useState("");
   const location = useLocation();
 
+  // Get labcode from localStorage
+  const userStr = localStorage.getItem("user") || '{}';
+  let obj = {};
+  try {
+    obj = JSON.parse(userStr);
+  } catch (err) {
+    obj = {};
+  }
+  const labcode = obj.labCode || "";
+
   useEffect(() => {
-    api.get("/patients")
-      .then(res => setPatients(res.data))
+    if (!labcode) return;
+    api.get(`/patients`, { params: { labcode } })
+      .then(res => setPatients(Array.isArray(res.data) ? res.data : []))
       .catch(() => setPatients([]));
-  }, [location.key]); // refetch every time the route changes
+  }, [location.key, labcode]); // refetch every time the route changes or labcode changes
 
   const filtered = patients.filter(
     p => (p.firstName + " " + p.lastName + " " + p.mrn + " " + p.contact)

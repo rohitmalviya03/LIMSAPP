@@ -12,11 +12,22 @@ const PatientDetails = () => {
   const [patient, setPatient] = useState(null);
   const navigate = useNavigate();
 
+  // Get labcode from localStorage
+  const userStr = localStorage.getItem("user") || '{}';
+  let obj = {};
+  try {
+    obj = JSON.parse(userStr);
+  } catch (err) {
+    obj = {};
+  }
+  const labcode = obj.labCode || "";
+
   useEffect(() => {
-    api.get(`/patients/${id}`)
+    if (!labcode) return;
+    api.get(`/patients/${id}`, { params: { labcode } })
       .then(res => setPatient(res.data))
       .catch(() => setPatient(null));
-  }, [id]);
+  }, [id, labcode]);
 
   if (!patient) {
     return (

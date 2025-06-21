@@ -72,15 +72,16 @@ const AdminUserMaster = () => {
   const [form, setForm] = useState({ username: '', email: '', role: 'user', password: '' });
   const [message, setMessage] = useState('');
   const [activity, setActivity] = useState([]);
+  const [backendError, setBackendError] = useState(false);
 
   // Fetch all users
   useEffect(() => {
-   const data= api.get('/auth/users-master/'+obj.username)
-      .then(res => res.data)
-      .then(setUsers);
-
-
-      console.log('Users fetched:', data);
+    api.get('/auth/users-master/' + obj.username)
+      .then(res => {
+        setUsers(res.data);
+        setBackendError(false);
+      })
+      .catch(() => setBackendError(true));
   }, []);
 
   // Fetch activity for a user
@@ -105,51 +106,31 @@ const AdminUserMaster = () => {
   const handleAddUser = async e => {
     e.preventDefault();
     setMessage('');
-    const url = editingUser ? '/auth/user-master/update' : '/auth/add';
-    const method = editingUser ? 'POST' : 'POST';
-    const payload = editingUser
-      ? { ...form, id: editingUser.id }
-      : { ...form, password: form.password };
-
-    const res = await api.post(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-
-      username: form.username,
-          email: form.email,
-          role: form.role,
-          labcode: form.labcode,
-          password: form.password,
-          labcode : obj.username, // Use logged-in user's labcode
-    }
-
-
-);
-
-    console.log('Response:', res);
-    if (res.status==200) {
-      setMessage(editingUser ? 'User updated successfully.' : 'User added successfully.');
-      // Refresh user list
-      api.get('/auth/users-master')
-        .then(res => res.data)
-        .then(setUsers);
-      setShowForm(false);
-    } else {
-      const err = await res.text();
-      setMessage('Error: ' + err);
-    }
-  };
-
-  // Delete user
-  const handleDelete = async userId => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
-    const res = await api.delete(`auth/user-master/delete?userId=${userId}`, { method: 'DELETE' });
-    if (res.status==200) {
-      setMessage('User deleted successfully.');
-      setUsers(users.filter(u => u.id !== userId));
-    } else {
-      const err = await res.text();
-      setMessage('Error: ' + err);
+    try {
+      const url = editingUser ? '/auth/user-master/update' : '/auth/add';
+      const payload = editingUser
+        ? { ...form, id: editingUser.id, labcode: obj.username }
+        : { ...form, password: form.password, labcode: obj.username };
+      const res = await api.post(url, payload, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (res.status === 200) {
+        setMessage(editingUser ? 'User updated successfully.' : 'User added successfully.');
+        api.get('/auth/users-master/' + obj.username)
+          .then(res => {
+            setUsers(res.data);
+            setBackendError(false);
+          })
+          .catch(() => setBackendError(true));
+        setShowForm(false);
+      } else {
+        const err = await res.text();
+        setMessage('Error: ' + err);
+      }
+      setBackendError(false);
+    } catch (err) {
+      setBackendError(true);
+      setMessage('Error: ' + err.message);
     }
   };
 
@@ -158,40 +139,52 @@ const AdminUserMaster = () => {
     e.preventDefault();
     setMessage('');
     try {
-      // Build payload just like add, but include the user id
       const payload = {
         id: editingUser.id,
         username: form.username,
         email: form.email,
         role: form.role,
-        labcode: form.labcode,
+        labcode: obj.username, // Use logged-in user's labcode
         password: form.password // can be blank if not changing
       };
-
-      const res = await api.put('/auth/user-master/update', {
-        method: 'PUT', // Your backend uses @PostMapping
-        headers: { 'Content-Type': 'application/json' },
-         id: editingUser.id,
-        username: form.username,
-        email: form.email,
-        role: form.role,
-        labcode: form.labcode,
-        password: form.password,
-             labcode : obj.username, // Use logged-in user's labcode
+      const res = await api.post('/auth/user-master/update', payload, {
+        headers: { 'Content-Type': 'application/json' }
       });
-
       if (res.status === 200) {
         setMessage('User updated successfully.');
-        // Refresh user list
-        api.get('/auth/users-master')
-        .then(res => res.data)
-        .then(setUsers);
-      setShowForm(false);
+        api.get('/auth/users-master/' + obj.username)
+          .then(res => {
+            setUsers(res.data);
+            setBackendError(false);
+          })
+          .catch(() => setBackendError(true));
+        setShowForm(false);
+      } else {
+        const err = await res.text();
+        setMessage('Error: ' + err);
+      }
+      setBackendError(false);
+    } catch (err) {
+      setBackendError(true);
+      setMessage('Error: ' + err.message);
+    }
+  };
+
+  // Delete user
+  const handleDelete = async userId => {
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    try {
+      const res = await api.delete(`/auth/user-master/delete?userId=${userId}`);
+      if (res.status === 200) {
+        setMessage('User deleted successfully.');
+        setUsers(users.filter(u => u.id !== userId));
+        setBackendError(false);
       } else {
         const err = await res.text();
         setMessage('Error: ' + err);
       }
     } catch (err) {
+      setBackendError(true);
       setMessage('Error: ' + err.message);
     }
   };
@@ -263,6 +256,25 @@ const AdminUserMaster = () => {
         </div>
       )}
       {message && <div style={styles.message}>{message}</div>}
+      {/* Backend Error Banner */}
+      <br></br>
+      {backendError && (
+        <div style={{
+          background: '#ffebee',
+          color: '#b71c1c',
+          border: ' #e53935',
+          borderRadius: 8,
+          padding: '12px 18px',
+          marginBottom: 18,
+          fontWeight: 700,
+          fontSize: 16,
+          textAlign: 'center',
+          boxShadow: '0 1px 6px #0001'
+        }}>
+          
+         Somwthing went wrong while fetching data from the server. Please try again later.
+        </div>
+      )}
     </div>
   );
 };
