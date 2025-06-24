@@ -33,7 +33,11 @@
   padding: 14px 10px;
   text-align: left;
 }
-
+.recollected-row {
+  background: #fffbe6 !important;
+  font-weight: 600;
+  color: #d48806;
+}
 .lims-table th {
   background: #e3f0fc;
   color: #1976d2;

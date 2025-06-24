@@ -4,6 +4,7 @@ import Sidebar from "../Layout/Sidebar";
 import { Link } from "react-router-dom";
 import "../../styles/dashboard.css";
 
+import { useAuth } from "../../context/AuthContext";
 const Dashboard = ({ user }) => {
   const [stats, setStats] = useState({
     samples: 0,
@@ -17,17 +18,19 @@ const Dashboard = ({ user }) => {
 
   console.log("Dashboard stats:", user, stats);
 
+  const { getLabcode } = useAuth();
+const labcode = getLabcode(); // Get labcode from context
   useEffect(() => {
     Promise.all([
-      api.get("/samples/count").then(res => res.data).catch(() => ({
+      api.get("/samples/count?labcode="+labcode).then(res => res.data).catch(() => ({
         all: 0, pending: 0, completed: 0, running: 0, collected: 0, processing: 0
       })),
-      api.get("/users/count").then(res => res.data).catch(() => 0),
-      api.get("/tests/count").then(res => res.data).catch(() => ({
+      api.get("/users/count?labcode="+labcode).then(res => res.data).catch(() => 0),
+      api.get("/tests/count?labcode="+labcode).then(res => res.data).catch(() => ({
         all: 0, pending: 0, completed: 0, running: 0, collected: 0
       })),
       api.get("/inventory/count").then(res => res.data).catch(() => 0),
-      api.get("/patients/count").then(res => res.data).catch(() => 0),
+      api.get("/patients/count?labcode="+labcode).then(res => res.data).catch(() => 0),
     ]).then(([samplesBreakdown, users, testsBreakdown, inventory, patients]) => {
       setStats({
         samples: samplesBreakdown.all || 0,
@@ -98,10 +101,10 @@ const Dashboard = ({ user }) => {
               <span>🚦 Running</span>
               <b>{stats.testsBreakdown.running}</b>
             </div>
-            <div className="breakdown-pill-modern collected">
+            {/* <div className="breakdown-pill-modern collected">
               <span>🧫 Collected</span>
               <b>{stats.testsBreakdown.collected || 0}</b>
-            </div>
+            </div> */}
             <div className="breakdown-pill-modern completed">
               <span>✅ Completed</span>
               <b>{stats.testsBreakdown.completed}</b>

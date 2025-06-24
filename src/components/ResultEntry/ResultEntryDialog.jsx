@@ -17,6 +17,8 @@ export default function ResultEntryDialog({ sample, onClose }) {
   } catch (err) {
     obj = { id: "rohitmalviya03" };
   }
+
+  console.log("ResultEntryDialog - user:", obj.labCode);
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -72,10 +74,10 @@ export default function ResultEntryDialog({ sample, onClose }) {
     setError("");
     try {
       await api.post("/results/entry", {
-        sample,
+        sampleId: sample.sampleId,
         results,
         userId: obj.id,
-        // labcode: getLabcode(),
+        labcode: obj.labCode,
       });
       setMessage(`Result is saved for the sample number ${sample.sampleId}`);
       setTimeout(() => {

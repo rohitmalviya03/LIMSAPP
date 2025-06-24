@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 
+import { useAuth } from "../../context/AuthContext";
 import api, { getLabcode } from "../../api/api";
 export default function ResultValidationPage() {
   const [pendingResults, setPendingResults] = useState([]);
@@ -13,7 +14,7 @@ export default function ResultValidationPage() {
   useEffect(() => {
     fetchPending();
     // Fetch user master for name lookup
-    api.get("auth/users-master/899").then(res => {
+    api.get("auth/users-master?labcode="+labcode).then(res => {
       const map = {};
       (res.data || []).forEach(u => { map[u.id] = u.username; });
       setUserMap(map);
@@ -21,8 +22,10 @@ export default function ResultValidationPage() {
     // eslint-disable-next-line
   }, []);
 
+  const { getLabcode } = useAuth();
+const labcode = getLabcode(); // Get labcode from context
   useEffect(() => {
-    api.get("/tests-master").then(res => {
+    api.get(`/tests-master?labcode=`+labcode).then(res => {
       const map = {};
       (res.data || []).forEach(t => { map[String(t.id)] = t.testName; });
       setTestMaster(map);
@@ -34,7 +37,7 @@ export default function ResultValidationPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await api.get("/results/pending-validation");
+      const res = await api.get("/results/pending-validation?labcode="+labcode);
       setPendingResults(res.data);
       console.log("Pending results fetched:", res.data);
     } catch (err) {
@@ -57,7 +60,8 @@ export default function ResultValidationPage() {
         resultId,
         status,
         doctorId: obj.id,
-        sampleId
+        sampleId,
+        labCode: labcode,
       });
       setPendingResults(results => results.filter(r => r.id !== resultId));
     } catch (err) {

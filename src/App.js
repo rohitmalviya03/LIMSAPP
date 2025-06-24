@@ -112,7 +112,7 @@ function AppContent() {
     <>
       <Navbar />
       <div className="app-layout">
-        <div className="layout-flex">
+        <div className="layout-flex" style={{ display: "flex" }}>
           <Sidebar />
           <div className="main-content">
             <Routes>
