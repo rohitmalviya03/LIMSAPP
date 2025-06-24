@@ -22,8 +22,26 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
   };
 
+
+
+const getLabcode = () =>  {
+  const userStr = localStorage.getItem("user") || '{}';
+  try {
+   
+    let obj = {};
+  try {
+    obj = JSON.parse(userStr);
+  } catch (err) {
+    obj = { id: "rohitmalviya03" };
+  }
+    return obj.labCode || '';
+  } catch {
+    return '';
+  }
+}
+
   return (
-    <AuthContext.Provider value={{ user, setUser, logout }}>
+    <AuthContext.Provider value={{ user, setUser, logout ,getLabcode}}>
       {children}
     </AuthContext.Provider>
   );

@@ -3,21 +3,31 @@ import CollectSampleDialog from "./CollectSampleDialog";
 import api from "../../api/api";
 import "../../styles/SampleCollectionList.css";
 
+import { useAuth } from "../../context/AuthContext";
 export default function SampleCollectionList() {
   const [pending, setPending] = useState([]);
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const [testOptions, setTestOptions] = useState([]);
+  const { getLabcode } = useAuth();
+const labcode = getLabcode(); // Get labcode from context
   const [testMaster, setTestMaster] = useState({}); // { testId: testName }
   useEffect(() => {
     fetchPending();
     // eslint-disable-next-line
   }, []);
 
+
+   useEffect(() => {
+   const res= api.get(`/tests-master?labcode=`+labcode)
+      .then(res => setTestOptions(res.data || []))
+      .catch(() => setTestOptions([]));
+  
+    }, []);
   const fetchPending = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/samples/pending");
+      const res = await api.get("/samples/pending?labcode="+labcode);
       console.log("SampleCollectionList - pending samples:", res.data);
       setPending(res.data || []);
     } catch (err) {
@@ -35,7 +45,7 @@ export default function SampleCollectionList() {
 
   // Fetch test master list and build a map {id: name}
   useEffect(() => {
-    api.get("/tests-master")
+    api.get(`/tests-master?labcode=`+labcode)
       .then(res => {
 
         

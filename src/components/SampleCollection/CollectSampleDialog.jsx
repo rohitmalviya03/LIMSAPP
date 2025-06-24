@@ -2,10 +2,18 @@ import React, { useState } from "react";
 import axios from "axios";
 import SampleCollectionSlip from "./SampleCollectionSlip";
 import api from "../../api/api";
+
+
+import { useAuth } from "../../context/AuthContext";
 export default function CollectSampleDialog({ sample, onClose }) {
   const [collector, setCollector] = useState("");
   const [collectedAt, setCollectedAt] = useState(new Date().toISOString());
   const [submitted, setSubmitted] = useState(false);
+
+  const { getLabcode } = useAuth();
+const labcode = getLabcode(); // Get labcode from context
+  const [testMaster, setTestMaster] = useState({}); // { testId: testName }
+
 
   const handleSubmit = async () => {
     await api.post("/samples/collect", {
@@ -15,6 +23,10 @@ export default function CollectSampleDialog({ sample, onClose }) {
     });
     setSubmitted(true);
   };
+
+
+
+
 
   if (submitted) {
     return (
@@ -31,7 +43,9 @@ export default function CollectSampleDialog({ sample, onClose }) {
         <h3 style={{ color: "#1953a8", fontWeight: 700, fontSize: 21, marginBottom: 10 }}>Collect Sample</h3>
        <td style={{ padding: "10px 8px" }}>{sample.patient.firstName} ({sample.patient.mrn})</td>
               <td style={{ padding: "10px 8px" }}>{sample.sampleNumber}</td>
-              <td style={{ padding: "10px 8px" }}>{sample.testName}</td>
+              <td style={{ padding: "10px 8px" }}>sdfd
+                {testMaster[sample.testName]}
+              </td>
         <div style={{ marginTop: 16 }}>
           <label>
             Collector Name:

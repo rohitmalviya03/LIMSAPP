@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import api from "../../api/api";
 import "../../styles/tests.css";
 
+import { useAuth } from "../../context/AuthContext";
 const statusOptions = ["All", "Pending", "Completed", "Cancelled"];
 
 const TestRaisedList = () => {
@@ -12,6 +13,8 @@ const TestRaisedList = () => {
   const [testMaster, setTestMaster] = useState({}); // { testId: testName }
   const [userMaster, setUserMaster] = useState({}); // { userId: userName }
 
+  const { getLabcode } = useAuth();
+  const labcode = getLabcode(); // Get labcode from context
   useEffect(() => {
     fetchTests();
     // eslint-disable-next-line
@@ -19,7 +22,7 @@ const TestRaisedList = () => {
 
   // Fetch test master list and build a map {id: name}
   useEffect(() => {
-    api.get("/tests-master")
+    api.get(`/tests-master?labcode=`+labcode)
       .then(res => {
 
         
@@ -50,7 +53,7 @@ const TestRaisedList = () => {
 
   // Fetch user master list and build a map {id: name}
   useEffect(() => {
-    api.get("/auth/users-master") // <-- Your endpoint to get all users
+    api.get("/auth/users-master/"+labcode) // <-- Your endpoint to get all users
       .then(res => {
         const map = {};
         console.log("TestRaisedList - user master data:", res.data);
@@ -109,7 +112,7 @@ const TestRaisedList = () => {
               <thead>
                 <tr>
                   <th>Test Name</th>
-                  <th>Patient</th>
+                  <th>Patient MRN</th>
                   <th>Sample #</th>
                   <th>Date Raised</th>
                   <th>Status</th>

@@ -3,6 +3,8 @@ import api from "../../api/api";
 import RaisedTestsList from "./RaisedTestsList";
 import "../../styles/tests.css";
 
+
+import { useAuth } from "../../context/AuthContext";
 const AddTestRaised = () => {
   const [search, setSearch] = useState(""); // MRN or name input
   const [patient, setPatient] = useState(null); // Patient details after search
@@ -27,10 +29,11 @@ const AddTestRaised = () => {
   } catch (err) {
     obj = { id: "rohitmalviya03" };
   }
-
+  const { getLabcode } = useAuth();
+const labcode = getLabcode(); // Get labcode from context
   // Fetch test master data once on mount
   useEffect(() => {
-    api.get("/tests-master")
+    api.get(`/tests-master?labcode=`+labcode)
       .then(res => setTestOptions(res.data))
       .catch(() => setTestOptions([]));
   }, []);
@@ -67,11 +70,11 @@ const AddTestRaised = () => {
       let res;
       if (/^\d+$/.test(search.trim())) {
         // All digits: treat as MRN
-        res = await api.get(`/patients/search?mrn=${search.trim()}`);
+        res = await api.get(`/patients/search?mrn=${search.trim()}&labcode=`+labcode);
         setPatient(res.data);
       } else {
         // Otherwise, search by name (picks first result)
-        res = await api.get(`/patients/search?name=${encodeURIComponent(search.trim())}`);
+        res = await api.get(`/patients/search?name=${encodeURIComponent(search.trim())}&labcode=`+labcode);
         if (res.data.length === 0) {
           setSearchError("No patient found.");
         } else {
@@ -141,6 +144,7 @@ const AddTestRaised = () => {
       const res = await api.post("/addtests/bulk", {
         patientId: patient.id,
         testRaisedBy: obj.id,
+        labcode: labcode, // Use labcode from context
         tests: selectedTests.map(test => ({ testId: test.id })), // [{testId}]
         notes // send notes for all
       });

@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import api from "../../api/api";
 import "../../styles/tests.css";
 
+import { useAuth } from "../../context/AuthContext";
 const statusColors = {
   Pending: "#f39c12",
   Completed: "#27ae60",
@@ -26,17 +27,53 @@ const billingIcons = {
   Unpaid: "❗",
   Pending: "⏱️"
 };
-
 const TestRaisedDetails = () => {
   const { id } = useParams();
   const [test, setTest] = useState(null);
   const [loading, setLoading] = useState(true);
+const [testOptions, setTestOptions] = useState([]);
 
+  const [testMaster, setTestMaster] = useState({}); // { testId: testName }
+  // Fetch test master list for autosuggestion
+ 
+  // Fetch test master list and build a map {id: name}
+  useEffect(() => {
+    api.get(`/tests-master?labcode=`+labcode)
+      .then(res => {
+
+        
+        // Map as array of { testId, testName }
+        const mapped = (res.data || []).map(t => ({
+          
+          testId: t.id,
+          testName: t.testName
+        
+        
+        }
+      )
+      
+      
+      );
+
+         // If you still want the map for fast lookup:
+        const map = {};
+        mapped.forEach(t => { map[String(t.testId)] = t.testName; }
+      
+      
+      );
+        setTestMaster(map); // <-- set the map, not the array!
+        
+      })
+      .catch(() => setTestMaster({}));
+  }, []);
+
+  const { getLabcode } = useAuth();
+  const labcode = getLabcode(); // Get labcode from context
   useEffect(() => {
     const fetchTestDetails = async () => {
       setLoading(true);
       try {
-        const res = await api.get(`/tests/${id}`);
+        const res = await api.get(`/tests/${id}?labcode=`+labcode);
         setTest(res.data);
       } catch (e) {
         setTest(null);
@@ -73,7 +110,7 @@ const TestRaisedDetails = () => {
       <div className="lims-detail-grid-main">
         <div className="lims-detail-section">
           <div className="lims-detail-label">Test Name</div>
-          <div className="lims-detail-value">{test.testName}</div>
+          <div className="lims-detail-value">{testMaster[String(test.testName)] || test.testName || test.testId}</div>
         </div>
         <div className="lims-detail-section">
           <div className="lims-detail-label">Sample ID</div>

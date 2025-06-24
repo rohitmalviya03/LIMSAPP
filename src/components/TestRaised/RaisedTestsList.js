@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "../../api/api";
 import "../../styles/tests.css";
 
+import { useAuth } from "../../context/AuthContext";
 const RaisedTestsList = ({ patientId }) => {
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -14,11 +15,14 @@ const RaisedTestsList = ({ patientId }) => {
   const [success, setSuccess] = useState("");
 
   const [testMaster, setTestMaster] = useState({}); // { testId: testName }
+
+  const { getLabcode } = useAuth();
+  const labcode = getLabcode(); // Get labcode from context
   // Fetch raised tests for this patient
   useEffect(() => {
     if (!patientId) return;
     setLoading(true);
-    api.get(`/raisedtests?patientId=${patientId}`)
+    api.get(`/raisedtests?patientId=${patientId}&labcode=`+labcode)
       .then(res => setTests(res.data))
       .catch(() => setTests([]))
       .finally(() => setLoading(false));
@@ -26,7 +30,7 @@ const RaisedTestsList = ({ patientId }) => {
 
   // Fetch test master list for autosuggestion
   useEffect(() => {
-    api.get("/tests-master")
+    api.get(`/tests-master?labcode=`+labcode)
       .then(res => setTestOptions(res.data || []))
       .catch(() => setTestOptions([]));
   }, []);
@@ -79,7 +83,7 @@ const RaisedTestsList = ({ patientId }) => {
  
   // Fetch test master list and build a map {id: name}
   useEffect(() => {
-    api.get("/tests-master")
+    api.get(`/tests-master?labcode=`+labcode)
       .then(res => {
 
         

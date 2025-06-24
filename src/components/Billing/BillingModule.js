@@ -4,6 +4,7 @@ import "../../styles/billing.css";
 import BillReceiptModal from "./BillReceiptModal";
 import PreviousBillsModal from "./PreviousBillsModal";
 
+import { useAuth } from "../../context/AuthContext";
 // Add this helper to load Razorpay script if not already loaded
 function loadRazorpayScript() {
   return new Promise((resolve) => {
@@ -52,21 +53,21 @@ const BillingModule = () => {
     return `${date.toLocaleDateString("en-GB")} ${date.toLocaleTimeString("en-GB", { hour: '2-digit', minute: '2-digit' })}`;
   };
 
-  // Fetch master list of tests
-  useEffect(() => {
-   const res= api.get("/tests-master")
-      .then(res => setTestOptions(res.data || []))
-      .catch(() => setTestOptions([]));
-  
-    }, []);
 
-
-
+  const { getLabcode } = useAuth();
+const labcode = getLabcode(); // Get labcode from context
   // Helper to get test name by testId
   const getTestName = (testId) => {
     const found = testOptions.find(opt => String(opt.id) === String(testId));
     return found ? found.testName : testId;
   };
+  // Fetch master list of tests
+  useEffect(() => {
+   const res= api.get(`/tests-master?labcode=`+labcode)
+      .then(res => setTestOptions(res.data || []))
+      .catch(() => setTestOptions([]));
+  
+    }, []);
 
   // Search patient by MRN or name
   const handleSearch = async (e) => {
@@ -80,19 +81,19 @@ const BillingModule = () => {
     try {
       let res;
       if (/^\d+$/.test(search.trim())) {
-        res = await api.get(`/patients/search?mrn=${search.trim()}`);
+        res = await api.get(`/patients/search?mrn=${search.trim()}&labcode=`+labcode);
         setPatient(res.data);
       } else {
-        res = await api.get(`/patients/search?name=${encodeURIComponent(search.trim())}`);
+        res = await api.get(`/patients/search?name=${encodeURIComponent(search.trim())}&labcode=`+labcode);
         setPatient(res.data[0]);
       }
       if (res && res.data && res.data.id) {
-        const testsRes = await api.get(`/raisedtests?patientId=${res.data.id}`);
+        const testsRes = await api.get(`/raisedtests?patientId=${res.data.id}&labcode=`+labcode);
         setTests((testsRes.data || []).filter(t => !t.billed)); // Only unbilled tests
         setBillItems([]);
         // Fetch previous bills for the patient
         setPrevBillLoading(true);
-        api.get(`/bills/history?patientId=${res.data.id}`)
+        api.get(`/bills/history?patientId=${res.data.id}&labcode=`+labcode)
           .then(billRes => setPreviousBills(billRes.data || []))
           .finally(() => setPrevBillLoading(false));
       }
@@ -174,6 +175,7 @@ const BillingModule = () => {
         items: billItems,
         discountPercent: discount,
         taxPercent: taxPercent,
+        labcode: labcode, // Use labcode from context
         total
       });
       setSubmitStatus("Bill generated successfully!");
