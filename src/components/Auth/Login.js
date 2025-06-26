@@ -98,7 +98,7 @@ const Login = ({ setUser }) => {
     e.preventDefault();
     setMessage('');
     try {
-      const res = await axios.post('http://localhost:8181/api/auth/login', { 
+      const res = await api.post('/auth/login', { 
         username: form.username, 
         password: form.password, 
         hospcode: HARDCODED_HOSPCODE ,
