@@ -4,7 +4,7 @@ import axios from "axios";
 export const getLabcode = () => sessionStorage.getItem("labcode") || "";
 
 const api = axios.create({
-  baseURL: "https://lims-backend-2bc1.onrender.com/api", // adjust as needed
+  baseURL: "http://localhost:8181/api", // adjust as needed
   withCredentials: true,
 });
 
