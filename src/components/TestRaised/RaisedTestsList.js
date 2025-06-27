@@ -28,6 +28,8 @@ const RaisedTestsList = ({ patientId }) => {
       .finally(() => setLoading(false));
   }, [patientId]);
 
+
+  console.log("RaisedTestsList - tests data:", tests);
   // Fetch test master list for autosuggestion
   useEffect(() => {
     api.get(`/tests-master?labcode=`+labcode)
@@ -37,8 +39,11 @@ const RaisedTestsList = ({ patientId }) => {
 
   const startEdit = (test) => {
     setEditId(test.id);
-    setEditForm({ testName: test.testName, notes: test.notes || "" });
-    setTestSearch(test.testName || "");
+    setEditForm({
+      testId: test.testId,
+      testName: test.testName,
+      notes: test.notes || ""
+    });
     setShowAutocomplete(false);
     setError(""); setSuccess("");
   };
@@ -54,12 +59,17 @@ const RaisedTestsList = ({ patientId }) => {
   const saveEdit = async () => {
     setError(""); setSuccess("");
     try {
-      await api.put(`/raisedtests/${editId}`, editForm);
-      setTests(tests.map(t => t.id === editId ? { ...t, ...editForm } : t));
+      await api.put(`/raisedtests/${editId}?labcode=`+labcode, {
+        testId: editForm.testId,
+        notes: editForm.notes
+      });
+      setTests(tests.map(t =>
+        t.id === editId
+          ? { ...t, testId: editForm.testId, testName: testOptions.find(opt => String(opt.id) === String(editForm.testId))?.testName, notes: editForm.notes }
+          : t
+      ));
       setSuccess("Updated!");
       setEditId(null);
-      setTestSearch("");
-      setShowAutocomplete(false);
     } catch {
       setError("Failed to update. Try again.");
     }
@@ -133,43 +143,29 @@ const RaisedTestsList = ({ patientId }) => {
                   <span className="lims-raised-label">Test</span>
                   {editId === test.id ? (
                     <>
-                      <input
-                        value={testSearch}
-                        className="lims-raised-edit"
-                        onChange={e => handleEditTestNameChange(e.target.value)}
-                        onFocus={() => {
-                          if (
-                            testSearch.trim().length > 0 &&
-                            filteredSuggestions(testSearch).length > 0
-                          ) {
-                            setShowAutocomplete(true);
-                          }
-                        }}
-                        onBlur={() => setTimeout(() => setShowAutocomplete(false), 150)}
-                        placeholder="Type to search..."
-                        autoComplete="off"
-                      />
-                      {showAutocomplete && testSearch.trim().length > 0 && filteredSuggestions(testSearch).length > 0 && (
-                        <ul className="autocomplete-list" style={{
-                          position: "absolute",
-                          left: 0, right: 0, top: "38px", zIndex: 3
-                        }}>
-                          {filteredSuggestions(testSearch).slice(0, 8).map((suggestion, idx) => (
-                            <li key={idx}
-                              onMouseDown={() => {
-                                setEditForm(f => ({ ...f, testName: suggestion.testName }));
-                                setTestSearch(suggestion.testName);
-                                setShowAutocomplete(false);
-                              }}>
-                              {suggestion.testName}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
+                      <select
+  className="lims-raised-edit"
+  value={editForm.testId || ""}
+  onChange={e => {
+    const selectedId = e.target.value;
+    setEditForm(f => ({
+      ...f,
+      testId: selectedId,
+      testName: testOptions.find(t => String(t.id) === String(selectedId))?.testName || ""
+    }));
+  }}
+>
+  <option value="">Select Test</option>
+  {testOptions.map(opt => (
+    <option key={opt.id} value={opt.id}>
+      {opt.testName}
+    </option>
+  ))}
+</select>
                     </>
                   ) : (
                     
-                      <span>{testMaster[String(test.testName)] || test.testName || test.testId}</span>
+                      <span>{testMaster[String(test.testId)] || test.testName || test.testId}</span>
                   )}
                 </div>
                 <div className="lims-raised-test-col">

@@ -14,7 +14,7 @@ export default function ResultValidationPage() {
   useEffect(() => {
     fetchPending();
     // Fetch user master for name lookup
-    api.get("auth/users-master?labcode="+labcode).then(res => {
+    api.get("auth/users-master/labcode="+labcode).then(res => {
       const map = {};
       (res.data || []).forEach(u => { map[u.id] = u.username; });
       setUserMap(map);

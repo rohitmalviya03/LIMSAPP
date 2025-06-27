@@ -19,7 +19,7 @@ const Navbar = () => {
           🧪
         </span> */}
             <span className="lims-titles" style={{ fontWeight: 700, fontSize: 21, letterSpacing: "1px" }}>
-          LabNexa - LIMS
+          {/* LabNexa - LIMS */}
         </span>
       </div>
       <nav className="navbar-links">

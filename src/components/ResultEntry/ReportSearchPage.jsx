@@ -2,6 +2,7 @@ import React, { useEffect,useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/api";
 
+import { useAuth } from "../../context/AuthContext";
 export default function ReportSearchPage() {
   const [patientId, setPatientId] = useState("");
   const [sampleId, setSampleId] = useState("");
@@ -11,6 +12,8 @@ export default function ReportSearchPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  const { getLabcode } = useAuth();
+const labcode = getLabcode(); // Get labcode from context
   const [testMaster, setTestMaster] = useState({}); // { testId: testName }
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -49,7 +52,7 @@ export default function ReportSearchPage() {
 
   // Fetch test master list and build a map {id: name}
   useEffect(() => {
-    api.get("/tests-master")
+    api.get(`/tests-master?labcode=`+labcode)
       .then(res => {
 
         

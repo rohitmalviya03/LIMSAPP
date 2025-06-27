@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import '../../styles/login.css';
 import api from "../../api/api";
+import LabOptionsModal from '../LabMaster/LabOptionsModal'; // Adjust path as needed
+
 const styles = {
   container: {
     maxWidth: 380,
@@ -84,6 +86,7 @@ const Login = ({ setUser }) => {
   });
   const [message, setMessage] = useState('');
   const [btnHover, setBtnHover] = useState(false);
+  const [labModalOpen, setLabModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -183,6 +186,26 @@ const Login = ({ setUser }) => {
       >
         Login
       </button>
+      {/* Lab Options Popup Trigger */}
+      <div style={{ marginTop: 18, textAlign: "center" }}>
+        <button
+          type="button"
+          onClick={() => setLabModalOpen(true)}
+          style={{
+            background: "none",
+            border: "none",
+            color: "#1976d2",
+            fontWeight: 500,
+            textDecoration: "underline",
+            cursor: "pointer",
+            fontSize: 16,
+            padding: 0
+          }}
+        >
+          Lab Master
+        </button>
+      </div>
+      <LabOptionsModal open={labModalOpen} onClose={() => setLabModalOpen(false)} />
       {message && <div style={styles.message}>{message}</div>}
     </form>
   );

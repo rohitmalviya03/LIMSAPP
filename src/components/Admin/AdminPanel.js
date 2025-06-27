@@ -218,11 +218,18 @@ export default function AdminPanel({ user }) {
       setAlert({ show: true, type: "success", msg: "Sample type added successfully!" });
       fetchSamples();
     } catch (err) {
-      setAlert({
-        show: true,
-        type: "error",
-        msg: "Something went wrong, please try again."
-      });
+
+      const status = err.response?.status || err.status;
+      if (status === 409) {
+        setAlert({ show: true, type: "error", msg: "sample type already exists." });
+      } else {
+        setAlert({
+          show: true,
+          type: "error",
+          msg: "Something went wrong, please try again."
+        });
+      }
+     
     }
   };
 
@@ -237,11 +244,16 @@ export default function AdminPanel({ user }) {
       setAlert({ show: true, type: "success", msg: "Machine added successfully!" });
       fetchMachines();
     } catch (err) {
-      setAlert({
-        show: true,
-        type: "error",
-        msg: "Something went wrong, please try again."
-      });
+        const status = err.response?.status || err.status;
+      if (status === 409) {
+        setAlert({ show: true, type: "error", msg: "Machine type already exists." });
+      } else {
+        setAlert({
+          show: true,
+          type: "error",
+          msg: "Something went wrong, please try again."
+        });
+      }
     }
   };
 
@@ -269,11 +281,16 @@ export default function AdminPanel({ user }) {
       setAlert({ show: true, type: "success", msg: "Machine parameter added successfully!" });
       fetchMachineParams();
     } catch (err) {
-      setAlert({
-        show: true,
-        type: "error",
-        msg: "Something went wrong, please try again."
-      });
+       const status = err.response?.status || err.status;
+      if (status === 409) {
+        setAlert({ show: true, type: "error", msg: "Machine parameter is aleredy mapped for this test and machine" });
+      } else {
+        setAlert({
+          show: true,
+          type: "error",
+          msg: "Something went wrong, please try again."
+        });
+      }
     }
   };
 
@@ -374,7 +391,8 @@ export default function AdminPanel({ user }) {
       await api.put(`/masters/tests/${id}`, {
         testName: editTestName.trim(),
         price: parseFloat(editTestPrice),
-        sampleType: editTestSampleType
+        sampleType: editTestSampleType,
+        labcode: user.username
       });
       setAlert({ show: true, type: "success", msg: "Test updated successfully!" });
       setEditTestId(null);

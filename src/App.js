@@ -38,6 +38,9 @@ import ReportPage from './components/ResultEntry/ReportPage';
 import './styles/main.css';
 import LabRegistrationForm from './components/LabMaster/LabRegistrationForm';
 import LabAdminDashboard from './components/LabMaster/LabAdminDashboard';
+import LabEdit from './components/LabMaster/LabEdit';
+import LabDelete from './components/LabMaster/LabDelete';
+import LabList from './components/LabMaster/LabList';
 function AppContent() {
   const { user, setUser } = useAuth();
 
@@ -45,12 +48,20 @@ function AppContent() {
   if (!user) {
     return (
       <div className="main-content">
+          <Router>
         <Routes>
           <Route path="/" element={<Login setUser={setUser} />} />
           <Route path="*" element={<Navigate to="/" replace />} />
 
-           <Route path="/labmaster/add" element={<LabRegistrationForm />} />
+          <Route path="/labmaster/add" element={<LabRegistrationForm />} />
+
+          <Route path="/labmaster/edit/:id" element={<LabEdit />} />
+          <Route path="/labmaster/delete/:id" element={<LabDelete />} />
+
+          <Route path="/labmaster/list" element={<LabList />} />
+
         </Routes>
+        </Router>
       </div>
     );
   }
@@ -60,39 +71,44 @@ function AppContent() {
     return (
       <>
         <Navbar />
+          <Router>
         <Routes>
           <Route path="/admin" element={<AdminPanel user={user} />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>
+        </Router>
       </>
     );
   }
 
-   if (user.role === '') {
+  if (user.role === '') {
     return (
       <>
-     
+  <Router>
         <Routes>
-              <Route path="/labmaster/add" element={<LabRegistrationForm />} />
-                <Route path="*" element={<Navigate to="/labmaster/add" replace />} />
+          <Route path="/labmaster/add" element={<LabRegistrationForm />} />
+          <Route path="*" element={<Navigate to="/labmaster/add" replace />} />
         </Routes>
+        </Router>
       </>
     );
   }
 
- if (user.role === 'labss') {
+  if (user.role === 'labss') {
     return (
       <>
         <Navbar />
-        <Routes>
-             <Route path="/labadmin/dashboard" element={<LabAdminDashboard />} />
-                <Route path="*" element={<Navigate to="/labadmin/dashboard" replace />} />
-        </Routes>
+        <Router>
+          <Routes>
+            <Route path="/labadmin/dashboard" element={<LabAdminDashboard />} />
+            <Route path="*" element={<Navigate to="/labadmin/dashboard" replace />} />
+          </Routes>
+        </Router>
       </>
     );
   }
- 
-  
+
+
 
   // // Result Entry role (or any role with access)
   // if (user.role === 'resultentry' || user.role === 'lab' || user.role === 'admin') {
@@ -115,11 +131,12 @@ function AppContent() {
         <div className="layout-flex" style={{ display: "flex" }}>
           <Sidebar />
           <div className="main-content">
+              <Router>
             <Routes>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<Dashboard user={user} />} />
               <Route path="/samples" element={<SampleList />} />
-               <Route path="/result-entry" element={<ResultEntry />} />
+              <Route path="/result-entry" element={<ResultEntry />} />
               <Route path="/samples/add" element={<AddSample />} />
               <Route path="/samples/:id" element={<SampleDetails />} />
               <Route path="/billing" element={<BillingModule />} />
@@ -133,15 +150,17 @@ function AppContent() {
               <Route path="/tests/add" element={<AddTestRaised />} />
               <Route path="/tests/:id" element={<TestRaisedDetails />} />
               <Route path="/results/entry" element={<ResultEntryList />} />
-        
-             <Route path="/labmaster/add" element={<LabRegistrationForm />} />
-                            <Route path="/results/pending-validation" element={<ResultValidationPage />} />
+
+              <Route path="/labmaster/add" element={<LabRegistrationForm />} />
+              <Route path="/results/pending-validation" element={<ResultValidationPage />} />
               <Route path="/results/report" element={<ReportSearchPage />} />
               <Route path="/results/report/view" element={<ReportPage />} />
-             
+
               <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
+
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
+            </Router>
           </div>
         </div>
       </div>

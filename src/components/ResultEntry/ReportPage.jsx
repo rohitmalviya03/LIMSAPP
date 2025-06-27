@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import api from "../../api/api";
 
+import { useAuth } from "../../context/AuthContext";
 export default function ReportPage() {
   const [searchParams] = useSearchParams();
   const sampleId = searchParams.get("sampleId");
@@ -19,16 +20,21 @@ export default function ReportPage() {
   const [entryDate, setEntryDate] = useState("");
   const [collectionDate, setCollectionDate] = useState("");
 
+
+  const { getLabcode } = useAuth();
+  const labcode = getLabcode(); // Get labcode from context
+
+
   // Fetch test master and user master maps
   useEffect(() => {
-    api.get("/tests-master")
+    api.get("/tests-master?labcode=" + labcode)
       .then(res => {
         const map = {};
         (res.data || []).forEach(t => { map[String(t.id)] = t.testName; });
         setTestMaster(map);
       })
       .catch(() => setTestMaster({}));
-    api.get("auth/users-master")
+    api.get("auth/users-master/labcode=" + labcode)
       .then(res => {
         const map = {};
         (res.data || []).forEach(u => { map[u.id] = u.username; });
@@ -44,7 +50,7 @@ export default function ReportPage() {
       setLoading(false);
       return;
     }
-    api.get(`/results/report?sampleId=${sampleId}&testId=${testId}`)
+    api.get(`/results/report?sampleId=${sampleId}&testId=${testId}&labcode=` + labcode)
       .then(res => {
         setReport(res.data);
         if (res.data && res.data.length > 0) {
